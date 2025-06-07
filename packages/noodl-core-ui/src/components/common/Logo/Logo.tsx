@@ -136,17 +136,17 @@ const DefaultIcon = React.memo(function () {
       }
       `}} />
   <linearGradient id="_무제_그라디언트_7" data-name="무제 그라디언트 7" x1="501.87" y1="182.81" x2="520.05" y2="346.8" gradientTransform="translate(28 28)" gradientUnits="userSpaceOnUse">
-    <stop offset="0" stop-color="#4abaf2"/>
-    <stop offset="1" stop-color="#2074d9"/>
+    <stop offset="0" stopColor="#4abaf2"/>
+    <stop offset="1" stopColor="#2074d9"/>
   </linearGradient>
   <linearGradient id="_무제_그라디언트_8" data-name="무제 그라디언트 8" x1="403.74" y1="663.05" x2="311.92" y2="813.2" gradientTransform="translate(28 28)" gradientUnits="userSpaceOnUse">
-    <stop offset="0" stop-color="#c9edfb"/>
-    <stop offset="0.13" stop-color="#a3dffb"/>
-    <stop offset="1" stop-color="#68bef4"/>
+    <stop offset="0" stopColor="#c9edfb"/>
+    <stop offset="0.13" stopColor="#a3dffb"/>
+    <stop offset="1" stopColor="#68bef4"/>
   </linearGradient>
   <linearGradient id="_무제_그라디언트_11" data-name="무제 그라디언트 11" x1="277.94" y1="554.77" x2="325.79" y2="613.82" gradientTransform="translate(28 28)" gradientUnits="userSpaceOnUse">
-    <stop offset="0" stop-color="#a3e3fc"/>
-    <stop offset="1" stop-color="#61adeb"/>
+    <stop offset="0" stopColor="#a3e3fc"/>
+    <stop offset="1" stopColor="#61adeb"/>
   </linearGradient>
 </defs>
   <path className="st17" d="M392,387c-7.5-4.42-15.3-7.83-22.01-13.49-61.09-51.46-25.86-147.66,52.46-152.56,118.87,5.38,222.56-25.59,317.55,61.05.99,4.31-6,8.8-9.69,10.67-13.31,6.75-27.81,2.21-40.82-3.19l-27.62-11.93c-64.26-25.07-111.91,23.37-150.86,67.58-26.44,27.83-59.95,55.62-100.99,45.86-5.91.86-11.91-.47-18-4Z"/>

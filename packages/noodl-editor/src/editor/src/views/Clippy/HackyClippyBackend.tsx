@@ -31,6 +31,23 @@ export async function handleCommand(
     });
   }
 
+  if (command === 'chat') {
+    const item = { templateId: 'chat' }; // Hardcode for chat
+    const context = await AiAssistantModel.instance.createNode(item.templateId, null, { x: 0, y: 0 });
+    context.chatHistory.add({
+      content: prompt,
+      metadata: {
+        user: LocalUserIdentity.getUserInfo()
+      }
+    });
+
+    statusCallback('Processing...');
+
+    await AiAssistantModel.instance.send(context);
+
+    return;
+  }
+
   if (copilotNodeInstaPromptable.includes(command)) {
     const item = copilotNodeCommands.find((x) => x.title.toLowerCase() === command);
     if (!item) throw new Error('Invalid command');

@@ -248,119 +248,66 @@ export function TextInput({
         )}
         onClick={() => focusInput()}
       >
-        {!isReadonly && (
-          <div className={classNames([css['Sizer'], css['TextStyle']])} ref={sizerRef}>
-            {sizerContent}
-          </div>
-        )}
+        <div ref={inputWrapperRef} className={css['InputWrapper']} onWheel={onScroll}>
+          {prefix && (
+            <span className={classNames([css['Prefix'], css['TextStyle']])}>{prefix}</span>
+          )}
 
-        {slotBeforeInput && <div className={css['BeforeContainer']}>{slotBeforeInput}</div>}
+          <div className={css['InputAndSuffix']}>
+            {slotBeforeInput}
 
-        <div
-          ref={inputWrapperRef}
-          onWheel={onScroll}
-          className={classNames([
-            css['InputWrapper'],
-            sizerRef.current && css['is-scrollable'],
-            isCopyable && css['has-button-spacing']
-          ])}
-        >
-          <div className={css['InputWrapperInner']}>
-            {prefix && <span className={classNames([css['Prefix'], css['TextStyle']])}>{prefix}</span>}
-
-            {!isReadonly && (
+            <div
+              className={classNames(css['InputAndSuffix'], UNSAFE_textClassName)}
+              style={UNSAFE_textStyle}
+            >
               <input
-                className={classNames([
-                  css['Input'],
-                  css['TextStyle'],
-                  isReadonly && css['is-readonly'],
-                  Boolean(suffix) && css['has-suffix'],
-                  UNSAFE_textClassName
-                ])}
+                ref={inputRef}
+                data-testid={testId}
+                className={css.Input}
+                type={type}
                 value={value}
                 placeholder={placeholder}
+                readOnly={isReadonly}
+                disabled={isDisabled}
+                autoFocus={isAutoFocus}
                 onChange={handleChange}
-                onKeyDown={(e) => {
-                  onKeyDown && onKeyDown(e);
-
-                  if (e.key === 'Enter') {
-                    onEnter && onEnter();
-                    e.stopPropagation();
-                  }
-                }}
                 onFocus={(e) => {
                   setIsFocused(true);
-                  if (onFocus) onFocus(e);
+                  onFocus && onFocus(e);
                 }}
                 onBlur={(e) => {
                   setIsFocused(false);
-                  if (onBlur) onBlur(e);
+                  onBlur && onBlur(e);
                 }}
-                disabled={isDisabled}
-                type={type}
-                style={
-                  sizerRef.current
-                    ? {
-                        maxWidth: valueWidth,
-                        flexBasis: valueWidth,
-                        ...UNSAFE_textStyle
-                      }
-                    : UNSAFE_textStyle
-                }
-                ref={inputRef}
-                data-test={testId}
-                autoFocus={isAutoFocus}
+                onKeyDown={(e) => {
+                  if (onEnter && e.key === 'Enter') {
+                    onEnter();
+                  }
+                  if (onKeyDown) onKeyDown(e);
+                }}
               />
-            )}
+              {suffix && <span className={css.Suffix}>{suffix}</span>}
+            </div>
 
-            {isReadonly && (
-              <div
-                className={classNames([
-                  css['Input'],
-                  css['TextStyle'],
-                  isReadonly && css['is-readonly'],
-                  css['is-div']
-                ])}
-                style={
-                  sizerRef.current
-                    ? {
-                        minWidth: valueWidth,
-                        flexBasis: valueWidth
-                      }
-                    : null
-                }
-                data-test={testId}
-              >
-                {value}
-              </div>
-            )}
-
-            {suffix && <span className={classNames([css['Suffix'], css['TextStyle']])}>{suffix}</span>}
+            {slotAfterInput}
           </div>
         </div>
-
-        {slotAfterInput && <div className={css['AfterContainer']}>{slotAfterInput}</div>}
-
         {isCopyable && (
-          <div className={css['ButtonContainer']}>
             <IconButton
               icon={IconName.Copy}
               size={IconSize.Small}
               variant={IconButtonVariant.SemiTransparent}
               onClick={() => {
-                platform.copyToClipboard(value.toString()).then(notifyOnCopySuccess).catch(notifyOnCopyError);
+                platform.copyToClipboard(String(value)).then(notifyOnCopySuccess).catch(notifyOnCopyError);
               }}
             />
-          </div>
         )}
+      </div>
 
-        {newNotification?.message && (
-          <Text className={css['NotificationMessage']} textType={newNotification.type}>
-            {newNotification.message}
-          </Text>
-        )}
+      <NotificationFeedbackDisplay notification={newNotification} />
 
-        {newNotification && <NotificationFeedbackDisplay notification={newNotification} />}
+      <div ref={sizerRef} className={classNames(css.Sizer, UNSAFE_textClassName)}>
+        {sizerContent}
       </div>
     </div>
   );

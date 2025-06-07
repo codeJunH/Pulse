@@ -26,12 +26,16 @@ export const template: AiNodeTemplate = {
 
       // 프로젝트 구조 분석 - 더 체계적으로
       let projectContext = '';
-      let nodesByType: { [key: string]: string[] } = {};
+      let nodesByType: { [key:string]: { name: string, id: string }[] } = {};
+      const nodeConnections: string[] = [];
+      const nodeMap = new Map<string, NodeGraphNode>();
       
       if (context.node && context.node.owner) {
         const nodeGraph: NodeGraphModel = context.node.owner;
-        
+
         nodeGraph.forEachNode((node: NodeGraphNode) => {
+          nodeMap.set(node.id, node);
+          
           if (node.typename !== 'ChatAssistant' && node.id !== 'ChatAssistant') {
             const nodeType = node.typename || 'Unknown';
             const nodeName = node.label || node.id || 'Unnamed';
@@ -39,54 +43,79 @@ export const template: AiNodeTemplate = {
             if (!nodesByType[nodeType]) {
               nodesByType[nodeType] = [];
             }
-            nodesByType[nodeType].push(nodeName);
+            nodesByType[nodeType].push({ name: nodeName, id: node.id });
           }
           return false;
         });
 
+        if (nodeGraph.connections) {
+          for (const connection of nodeGraph.connections) {
+            if (nodeConnections.length < 10) {
+              const fromNode = nodeMap.get(connection.fromId);
+              const toNode = nodeMap.get(connection.toId);
+
+              if(fromNode && toNode) {
+                const fromNodeName = fromNode.label || fromNode.typename;
+                const toNodeName = toNode.label || toNode.typename;
+                nodeConnections.push(`- ${fromNodeName}:'${connection.fromProperty}' -> ${toNodeName}:'${connection.toProperty}'`);
+              }
+            } else {
+              break;
+            }
+          }
+        }
+        
         // 프로젝트 컨텍스트 생성
+        let contextParts: string[] = [];
+
         if (Object.keys(nodesByType).length > 0) {
-          projectContext = `Current project analysis:
+          const nodeSummary = Object.entries(nodesByType).map(([type, nodes]) => 
+            `- ${type}: ${nodes.length} node(s) (${nodes.slice(0, 3).map(n => n.name).join(', ')}${nodes.length > 3 ? '...' : ''})`
+          ).join('\n');
+          contextParts.push(`Node types in use:\n${nodeSummary}`);
+        }
 
-Node types in use:
-${Object.entries(nodesByType).map(([type, nodes]) => 
-  `- ${type}: ${nodes.length} node(s) (${nodes.slice(0, 3).join(', ')}${nodes.length > 3 ? '...' : ''})`
-).join('\n')}
-
-`;
+        if (nodeConnections.length > 0) {
+          contextParts.push(`\nNode Connections:\n${nodeConnections.join('\n')}`);
+        }
+        
+        if(contextParts.length > 0) {
+          projectContext = `Current project analysis:\n\n${contextParts.join('\n')}\n`;
         }
       }
 
-      // Noodl 문서 참조 - Context7 데이터 기반 (하드코딩 부분 주석처리)
-      // const docContext = searchNoodlDocs(userPrompt);
-      // let noodlDocumentation = '';
-      // if (docContext) {
-      //   noodlDocumentation = `Relevant Noodl documentation:\n${docContext}\n\n`;
-      // }
+      // 향상된 시스템 컨텍스트
+      const systemContext = `You are an expert Noodl low-code development assistant. Your goal is to provide clear, concise, and actionable guidance to help users build web applications with Noodl.
 
-      // 노드 연결 제안 생성 (하드코딩 부분 주석처리)
-      // const nodeConnectionSuggestion = generateNodeConnectionAdvice(userPrompt, nodesByType);
+Analyze the user's query and the provided project context. Structure your response in two parts: "Summary" and "Actionable Steps".
 
-      // 시스템 컨텍스트 구성 - 실제 AI가 모든 답변 생성
-      const systemContext = `You are a helpful Noodl development assistant. You help users build web applications using the Noodl low-code platform.
+**1. Summary:**
+Start with a brief, high-level summary of the solution or explanation.
+
+**2. Actionable Steps:**
+Provide a detailed, step-by-step guide to implement the solution. Use specific Noodl terminology.
+
+- When suggesting node connections, use the format: "Connect [Source Node]'s '[Output Port]' to [Target Node]'s '[Input Port]'".
+- Reference the user's existing project structure from the "Current project analysis" when relevant.
+- Suggest specific node types (e.g., Group, Text, Button, Function, Object, Variable, List, Repeater, Router, Navigate, State) and their important parameters.
+- Explain the "what" and the "why" of your suggestions.
+
+Here is an example of the desired output format:
+
+<example>
+**Summary:**
+To display a list of products from a database, you need to query the records, and then use a Repeater to dynamically create the UI for each product.
+
+**Actionable Steps:**
+1.  **Query Products:** Use a "Query Records" node to fetch data from your 'Products' collection.
+2.  **Create a List:** Add a "List" node and connect the "Items" output from the "Query Records" node to the "Items" input of the "List" node.
+3.  **Use a Repeater:** Place a "Repeater" node inside a "Group" or other container. Connect the "Items" output of the "List" node to the "Items" input of the "Repeater".
+4.  **Design the Item UI:** Inside the "Repeater", design how each product will look. For example, add a "Text" node.
+5.  **Display Data:** Connect the "Item" output of the "Repeater" to the "Object" input of the "Text" node. Then, set the "Text" node's "Text" parameter to \`item.name\` to display the product name.
+</example>
 
 ${projectContext}
-
-Instructions:
-- You are an expert in Noodl low-code development
-- Provide specific, actionable guidance for Noodl development
-- When suggesting node connections, be precise about input/output ports
-- Reference the user's existing project structure when relevant
-- Include step-by-step instructions for complex workflows
-- Suggest specific node types and their configurations
-- Explain both the "what" and "why" of your suggestions
-- For node connections, use format: "Connect [Source Node]'s '[Output Port]' to [Target Node]'s '[Input Port]'"
-- Common Noodl nodes include: Group, Text, Button, Image, Function, Object, Variable, List, Repeater, Router, Navigate, State
-- Common ports: Button has 'Clicked' output, Text has 'Text' input, Navigate has 'Navigate' input
-- For data storage use Object nodes with properties, for persistence use JSONStorage in Function nodes
-- For lists use List + Repeater pattern, for navigation use Router + Navigate pattern
-
-Focus on practical, implementable solutions that work with Noodl's visual programming approach.`;
+`;
 
       // 사용자 AI 룰 가져오기 (한국어로 대답 등)
       const aiRules = OpenAiStore.getAiRules();
@@ -115,8 +144,8 @@ Focus on practical, implementable solutions that work with Noodl's visual progra
 
       const aiResponse = await context.chatStream({
         provider: {
-          model: 'gpt-3.5-turbo',
-          temperature: 0.7,
+          model: 'gpt-4o-mini',
+          temperature: 0.2,
           max_tokens: 2048
         },
         messages,

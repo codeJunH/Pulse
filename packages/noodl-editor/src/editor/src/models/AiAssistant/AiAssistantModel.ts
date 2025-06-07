@@ -67,7 +67,7 @@ const docsTemplates = [
   },
   {
     label: 'Chat',
-    desc: 'Noodl 공식 문서 참조 및 프로젝트 구조 분석을 통해 질문에 답변합니다.',
+    desc: 'Answers questions by referencing Noodl official documentation and analyzing the project structure.',
     examples: [],
     template: 'chat'
   }
@@ -178,10 +178,10 @@ export class AiAssistantModel extends Model<AiAssistantEvent, AiAssistantEvents>
       throw 'This node is not an AI node.';
     }
     
-    // ChatAssistant 노드인 경우 기본 메타데이터 설정
+    // Set default metadata for ChatAssistant nodes
     if (isChatAssistant && !aiAssistant) {
       node.metadata.AiAssistant = 'chat';
-      // 기존 prompt가 없는 경우에만 새로 생성
+      // Create a new prompt only if one doesn't already exist
       if (!node.metadata.prompt) {
         node.metadata.prompt = new ChatHistory([], { templateId: 'chat' }).toJSON();
       }
@@ -247,7 +247,7 @@ export class AiAssistantModel extends Model<AiAssistantEvent, AiAssistantEvents>
 
     // Save the chat history
     context.node.metadata.prompt = context.chatHistory.toJSON();
-    // 노드에 메타데이터 변경을 알림
+    // Notify the node that metadata has changed
     context.node.notifyListeners('metadataChanged', { key: 'prompt', data: context.node.metadata.prompt });
   }
 

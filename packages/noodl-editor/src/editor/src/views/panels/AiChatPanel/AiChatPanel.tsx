@@ -26,7 +26,7 @@ import {
 import { NodeGraphContextTmp } from '@noodl-contexts/NodeGraphContext/NodeGraphContext';
 import { ToastLayer } from '../../ToastLayer/ToastLayer';
 
-// 명령어 태그 컴포넌트
+// Command Tag Component
 interface CommandTagProps {
   title: string;
   description: string;
@@ -75,7 +75,7 @@ function CommandTag({ title, description, type, icon, isHighlighted, isDisabled,
   );
 }
 
-// 섹션 제목 컴포넌트
+// Section Title Component
 function SectionTitle({ title }: { title: string }) {
   return (
     <div style={{ margin: '12px 0 8px 0' }}>
@@ -313,7 +313,7 @@ export function AiChatPanel() {
       <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-end' }}>
         <div style={{ flex: 1 }}>
           <TextInput
-            ref={inputRef}
+            forwardedInputRef={inputRef}
             variant={TextInputVariant.Default}
             value={inputValue}
             onChange={(e) => setInputValue(e.currentTarget.value)}
