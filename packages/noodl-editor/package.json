@@ -1,6 +1,6 @@
 {
   "name": "noodl-editor",
-  "productName": "OpenNoodl",
+  "productName": "Pulse",
   "description": "Full stack low code React app builder",
   "author": "The Low Code Foundation",
   "homepage": "https://thelowcodefoundation.com",
@@ -15,7 +15,7 @@
     "test:ci": "webpack-cli --config=webpackconfigs/webpack.test-ci.js && electron test.js"
   },
   "build": {
-    "appId": "com.opennoodl.app",
+    "appId": "com.pulse.app",
     "afterSign": "./build/macos-notarize.js",
     "mac": {
       "hardenedRuntime": true,
