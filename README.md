@@ -1,3 +1,16 @@
+# Pulse
+
+Pulse is a fork of OpenNoodl, building upon the original Noodl open source code under GPL-3.0 license. Pulse is an advanced front-end React app builder with a visual programming interface that pursues a better no-code/low-code editor experience.
+
+Pulse extensively supports AI features that Noodl missed, providing developers and designers with powerful AI-assisted development capabilities for faster and more intelligent application creation.
+
+## Key Features
+
+- **Enhanced Visual Programming**: Advanced no-code/low-code editor with improved user experience
+- **Extensive AI Integration**: Comprehensive AI features for intelligent code generation, component suggestions, and automated development workflows
+- **AI-Powered Development**: Smart assistance for faster application building with minimal coding knowledge required
+- **Advanced React Builder**: Sophisticated front-end development tools for modern web applications
+
 # OpenNoodl
 
 OpenNoodl is a fork of the original Noodl open source code under GPL-3.0 license. OpenNoodl / Noodl is a front end React app builder with a visual programming interface. 
