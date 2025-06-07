@@ -61,7 +61,7 @@ export const promptToNodeCommands: CommandMetadata[] = [
   }
 ];
 
-export const copilotNodeInstaPromptable = ['/function', '/read from database', '/write to database'];
+export const copilotNodeInstaPromptable = ['/function', '/read from database', '/write to database', '/chat'];
 export const copilotNodeCommands: CopilotCommandMetadata[] = [
   {
     requireGPT4: false,
@@ -122,6 +122,23 @@ export const copilotNodeCommands: CopilotCommandMetadata[] = [
     availableOnFrontend: true,
     availableOnBackend: true,
     examples: ['Get an array of numbers, calculate the average, and save that to the current users score attribute']
+  },
+  {
+    requireGPT4: false,
+    templateId: 'chat',
+    title: '/Chat',
+    tag: 'Chat',
+    description: 'Noodl 공식 문서 참조 및 프로젝트 구조 분석을 통해 질문에 답변합니다.',
+    placeholder: '무엇을 도와드릴까요?',
+    type: PopupItemType.Custom,
+    icon: IconName.Chat,
+    availableOnFrontend: true,
+    availableOnBackend: true,
+    examples: [
+      'Noodl에서 사용자 인증을 어떻게 구현하나요?',
+      '현재 프로젝트에서 사용된 노드들의 목록을 보여주세요.',
+      '파일 시스템에서 JSON 파일을 읽는 방법을 알려주세요.'
+    ]
   }
 ];
 

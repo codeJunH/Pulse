@@ -64,6 +64,12 @@ const docsTemplates = [
     desc: '',
     examples: [],
     template: 'chart'
+  },
+  {
+    label: 'Chat',
+    desc: 'Noodl 공식 문서 참조 및 프로젝트 구조 분석을 통해 질문에 답변합니다.',
+    examples: [],
+    template: 'chat'
   }
 ];
 
@@ -175,6 +181,7 @@ export class AiAssistantModel extends Model<AiAssistantEvent, AiAssistantEvents>
     }
 
     const chatHistory = ChatHistory.fromJSON(node.metadata.prompt);
+    chatHistory.clear();
 
     // Backwards compatibility, load the AI file and fetch the template.
     if (node.metadata.AiAssistant && !node.metadata.prompt) {
@@ -238,19 +245,19 @@ export class AiAssistantModel extends Model<AiAssistantEvent, AiAssistantEvents>
       if (parentModel) {
         for (const node of nodeset.nodes) {
           parentModel.addChild(node);
+          if (node.metadata.templateId === 'chat') {
+            node.metadata.prompt = "{\"history\":[]}";
+          }
           nodes.push(node);
         }
       } else {
-        const nodeGraph = NodeGraphContextTmp.nodeGraph;
-        const insertedNodeset = nodeGraph.insertNodeSet({
-          nodeset: nodeset,
-          x: pos.x,
-          y: pos.y,
-          toastMessage
-        });
-        for (const node of insertedNodeset.nodes) {
+        nodeset.nodes.forEach((node) => {
+          if (node.metadata.templateId === 'chat') {
+            node.metadata.prompt = "{\"history\":[]}";
+          }
+          ProjectModel.instance.rootNode.addChild(node);
           nodes.push(node);
-        }
+        });
       }
       return nodes;
     }
