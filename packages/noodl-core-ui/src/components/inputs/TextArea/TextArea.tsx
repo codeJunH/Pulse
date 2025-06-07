@@ -33,6 +33,7 @@ export interface TextAreaProps extends UnsafeStyleProps {
   onBlur?: FocusEventHandler<HTMLTextAreaElement>;
   /** Occurs when Shift+Enter is pressed. */
   onEnter?: () => void;
+  onKeyDown?: React.KeyboardEventHandler<HTMLTextAreaElement>;
 }
 
 export function TextArea({
@@ -56,6 +57,7 @@ export function TextArea({
   onFocus,
   onBlur,
   onEnter,
+  onKeyDown,
 
   UNSAFE_className,
   UNSAFE_style
@@ -97,6 +99,7 @@ export function TextArea({
               onEnter();
               ev.preventDefault();
             }
+            onKeyDown?.(ev);
           }}
           value={value}
           autoFocus={isAutoFocus}

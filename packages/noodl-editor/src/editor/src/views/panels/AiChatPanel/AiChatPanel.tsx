@@ -10,7 +10,7 @@ import { Center } from '@noodl-core-ui/components/layout/Center';
 import { ScrollArea } from '@noodl-core-ui/components/layout/ScrollArea';
 import { Text, TextType, TextSize } from '@noodl-core-ui/components/typography/Text';
 import { Label, LabelSize } from '@noodl-core-ui/components/typography/Label';
-import { TextInput, TextInputVariant } from '@noodl-core-ui/components/inputs/TextInput';
+import { TextArea } from '@noodl-core-ui/components/inputs/TextArea';
 import { PrimaryButton, PrimaryButtonSize } from '@noodl-core-ui/components/inputs/PrimaryButton';
 import { Icon, IconName, IconSize } from '@noodl-core-ui/components/common/Icon';
 
@@ -93,7 +93,7 @@ export function AiChatPanel() {
   const [selectedCommand, setSelectedCommand] = useState<string | null>(null);
   const [hasApiKey, setHasApiKey] = useState(false);
   const [hasGPT4, setHasGPT4] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     const group = {};
@@ -310,38 +310,49 @@ export function AiChatPanel() {
         </div>
       )}
       
-      <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-end' }}>
-        <div style={{ flex: 1 }}>
-          <TextInput
-            forwardedInputRef={inputRef}
-            variant={TextInputVariant.Default}
-            value={inputValue}
-            onChange={(e) => setInputValue(e.currentTarget.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                handleSubmit();
-              }
-              if (e.key === 'Escape') {
-                setSelectedCommand(null);
-                setInputValue('/');
-              }
-            }}
-            placeholder={
-              isThinking ? "AI is thinking..." : 
-              selectedCommand ? selectedOption?.placeholder || "Enter your prompt..." :
-              "Type / for commands or ask anything..."
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        <TextArea
+          UNSAFE_className="clippy-textarea"
+          value={inputValue}
+          UNSAFE_style={{
+            minHeight: '60px',
+            resize: 'none',
+            overflowY: 'auto'
+          }}
+          onChange={(e) => {
+            setInputValue(e.currentTarget.value)
+            // Auto-resize
+            const textarea = e.currentTarget;
+            textarea.style.height = 'auto';
+            textarea.style.height = `${textarea.scrollHeight}px`;
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault();
+              handleSubmit();
             }
-            isDisabled={isThinking}
-          />
-        </div>
-        
-        <PrimaryButton
-          size={PrimaryButtonSize.Small}
-          label={isThinking ? "Thinking..." : "Send"}
-          isDisabled={!inputValue.trim() || inputValue === '/' || isThinking}
-          onClick={handleSubmit}
+            if (e.key === 'Escape') {
+              setSelectedCommand(null);
+              setInputValue('/');
+            }
+          }}
+          placeholder={
+            isThinking ? "AI is thinking..." : 
+            selectedCommand ? selectedOption?.placeholder || "Enter your prompt..." :
+            "Type / for commands or ask anything..."
+          }
+          isDisabled={isThinking}
         />
+        
+        <div style={{ display: 'flex' }}>
+            <PrimaryButton
+                size={PrimaryButtonSize.Small}
+                label={isThinking ? "Thinking..." : "Send"}
+                isDisabled={!inputValue.trim() || inputValue === '/' || isThinking}
+                onClick={handleSubmit}
+                UNSAFE_style={{ width: '100%' }}
+            />
+        </div>
       </div>
     </div>
   );
