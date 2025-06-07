@@ -65,13 +65,23 @@ export function createNodeFunction(
   attachToRoot: boolean
 ) {
   return (type: TSFixme) => {
-    const node = NodeGraphNode.fromJSON({
+    const nodeJson: any = {
       type: type.name,
       version: type.version,
       x: pos.x,
       y: pos.y,
       id: guid()
-    });
+    };
+    
+    // ChatAssistant 노드인 경우 메타데이터 추가
+    if (type.name === 'ChatAssistant') {
+      nodeJson.metadata = {
+        AiAssistant: 'chat',
+        prompt: '{"history":[],"metadata":{"templateId":"chat"}}'
+      };
+    }
+    
+    const node = NodeGraphNode.fromJSON(nodeJson);
 
     if (parentModel) {
       parentModel.addChild(node, { undo: true, label: 'create' });

@@ -149,9 +149,20 @@ export class NodeGraphNode extends Model {
       dynamicports: json.dynamicports,
       conflicts: json.conflicts,
       annotation: json.annotation,
-      metadata: json.metadata,
+      metadata: json.metadata || {},
       diffData: json.diffData
     });
+    
+    // ChatAssistant 노드인 경우 AI Assistant 메타데이터 초기화
+    if (json.type === 'ChatAssistant') {
+      if (!node.metadata.AiAssistant) {
+        node.metadata.AiAssistant = 'chat';
+      }
+      if (!node.metadata.prompt) {
+        node.metadata.prompt = '{"history":[],"metadata":{"templateId":"chat"}}';
+      }
+    }
+    
     for (const i in json.children) {
       const child = NodeGraphNode.fromJSON(json.children[i]);
       node.addChild(child);

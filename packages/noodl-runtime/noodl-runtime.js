@@ -18,6 +18,7 @@ function registerNodes(noodlRuntime) {
   [
     require('./src/nodes/componentinputs'),
     require('./src/nodes/componentoutputs'),
+    require('./src/nodes/chatassistant'),
 
     require('./src/nodes/std-library/runtasks'),
 

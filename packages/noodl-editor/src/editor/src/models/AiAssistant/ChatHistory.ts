@@ -151,7 +151,24 @@ export class ChatHistory extends Model<ChatHistoryEvent, ChatHistoryEvents> {
   }
 
   static fromJSON(json: any) {
-    return new ChatHistory(json?.history, json?.metadata);
+    console.log('ChatHistory.fromJSON called with:', json);
+    
+    // JSON 문자열인 경우 파싱
+    if (typeof json === 'string') {
+      try {
+        json = JSON.parse(json);
+      } catch (e) {
+        console.error('Failed to parse JSON string:', json, e);
+        json = { history: [], metadata: {} };
+      }
+    }
+    
+    // 빈 객체나 null인 경우 기본값 사용
+    if (!json) {
+      json = { history: [], metadata: {} };
+    }
+    
+    return new ChatHistory(json?.history || [], json?.metadata || {});
   }
 }
 

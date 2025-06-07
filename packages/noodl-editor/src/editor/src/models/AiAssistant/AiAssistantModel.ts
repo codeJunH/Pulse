@@ -172,8 +172,19 @@ export class AiAssistantModel extends Model<AiAssistantEvent, AiAssistantEvents>
 
   public async createContext(node: NodeGraphNode) {
     const aiAssistant = node.metadata.AiAssistant;
-    if (!aiAssistant) {
+    const isChatAssistant = node.typename === 'ChatAssistant';
+    
+    if (!aiAssistant && !isChatAssistant) {
       throw 'This node is not an AI node.';
+    }
+    
+    // ChatAssistant 노드인 경우 기본 메타데이터 설정
+    if (isChatAssistant && !aiAssistant) {
+      node.metadata.AiAssistant = 'chat';
+      // 기존 prompt가 없는 경우에만 새로 생성
+      if (!node.metadata.prompt) {
+        node.metadata.prompt = new ChatHistory([], { templateId: 'chat' }).toJSON();
+      }
     }
 
     if (this._contexts[node.id]) {
@@ -181,7 +192,6 @@ export class AiAssistantModel extends Model<AiAssistantEvent, AiAssistantEvents>
     }
 
     const chatHistory = ChatHistory.fromJSON(node.metadata.prompt);
-    chatHistory.clear();
 
     // Backwards compatibility, load the AI file and fetch the template.
     if (node.metadata.AiAssistant && !node.metadata.prompt) {
@@ -237,6 +247,8 @@ export class AiAssistantModel extends Model<AiAssistantEvent, AiAssistantEvents>
 
     // Save the chat history
     context.node.metadata.prompt = context.chatHistory.toJSON();
+    // 노드에 메타데이터 변경을 알림
+    context.node.notifyListeners('metadataChanged', { key: 'prompt', data: context.node.metadata.prompt });
   }
 
   public async createNode(templateId: string, parentModel: NodeGraphNode, pos: TSFixme) {

@@ -51,7 +51,8 @@ export function PropertyEditor(props: PropertyEditorProps) {
         // Disable double click for AI Nodes
         // For now lets allow Function nodes (JavaScriptFunction)
         const aiAssistant = props.model?.metadata?.AiAssistant;
-        if (aiAssistant && props.model?.typename !== 'JavaScriptFunction') return;
+        const isChatAssistant = props.model?.typename === 'ChatAssistant';
+        if ((aiAssistant || isChatAssistant) && props.model?.typename !== 'JavaScriptFunction') return;
 
         switch (command) {
           case 'doubleClick': {
@@ -69,7 +70,9 @@ export function PropertyEditor(props: PropertyEditorProps) {
   }, []);
 
   const aiAssistant = props.model?.metadata?.AiAssistant;
-  if (aiAssistant) {
+  const isChatAssistant = props.model?.typename === 'ChatAssistant';
+  
+  if (aiAssistant || isChatAssistant) {
     return <AiPropertyEditor {...props} instance={instance} />;
   }
 
