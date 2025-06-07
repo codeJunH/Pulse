@@ -8,6 +8,7 @@ import { IconName } from '@noodl-core-ui/components/common/Icon';
 import config from '../../shared/config/config';
 import { ComponentDiffDocumentProvider } from './views/documents/ComponentDiffDocument';
 import { EditorDocumentProvider } from './views/documents/EditorDocument';
+import { AiChatPanel } from './views/panels/AiChatPanel/AiChatPanel';
 import { CloudFunctionsPanel } from './views/panels/CloudFunctionsPanel/CloudFunctionsPanel';
 import { CloudServicePanel } from './views/panels/CloudServicePanel/CloudServicePanel';
 import { ComponentPortsComponent } from './views/panels/componentports';
@@ -67,10 +68,19 @@ export function installSidePanel({ isLesson }: SetupEditorOptions) {
   });
 
   SidebarModel.instance.register({
+    id: 'ai-chat',
+    name: 'Ask Noodl AI',
+    isDisabled: isLesson === true,
+    order: 2,
+    icon: IconName.AI,
+    panel: AiChatPanel
+  });
+
+  SidebarModel.instance.register({
     id: 'search',
     name: 'Search',
     fineType: new Keybinding(KeyMod.CtrlCmd, KeyCode.KEY_F).label,
-    order: 2,
+    order: 3,
     icon: IconName.Search,
     panel: SearchPanel
   });
@@ -78,7 +88,7 @@ export function installSidePanel({ isLesson }: SetupEditorOptions) {
   SidebarModel.instance.register({
     id: VersionControlPanel_ID,
     name: 'Version control',
-    order: 5,
+    order: 6,
     icon: IconName.StructureCircle,
     panel: VersionControlPanel
   });
@@ -87,7 +97,7 @@ export function installSidePanel({ isLesson }: SetupEditorOptions) {
     id: 'cloudservice',
     name: 'Cloud Services',
     isDisabled: isLesson === true,
-    order: 6,
+    order: 7,
     icon: IconName.CloudData,
     panel: CloudServicePanel
   });
@@ -96,7 +106,7 @@ export function installSidePanel({ isLesson }: SetupEditorOptions) {
     id: 'cloud-functions',
     name: 'Cloud Functions',
     isDisabled: isLesson === true,
-    order: 7,
+    order: 8,
     icon: IconName.CloudFunction,
     panel: CloudFunctionsPanel
   });
@@ -104,7 +114,7 @@ export function installSidePanel({ isLesson }: SetupEditorOptions) {
   SidebarModel.instance.register({
     id: 'settings',
     name: 'Project settings',
-    order: 8,
+    order: 9,
     icon: IconName.Setting,
     panel: ProjectSettingsPanel
   });
@@ -114,7 +124,7 @@ export function installSidePanel({ isLesson }: SetupEditorOptions) {
       experimental: true,
       id: 'file-explorer',
       name: 'File Explorer',
-      order: 19,
+      order: 20,
       icon: IconName.FolderOpen,
       panel: FileExplorerPanel
     });
@@ -123,7 +133,7 @@ export function installSidePanel({ isLesson }: SetupEditorOptions) {
       experimental: true,
       id: 'design-tokens',
       name: 'Design Tokens',
-      order: 20,
+      order: 21,
       icon: IconName.Palette,
       panel: DesignTokenPanel
     });
@@ -132,7 +142,7 @@ export function installSidePanel({ isLesson }: SetupEditorOptions) {
       experimental: true,
       id: 'undo-queue',
       name: 'Undo Queue',
-      order: 21,
+      order: 22,
       icon: IconName.Reset,
       panel: UndoQueuePanel
     });
@@ -143,7 +153,7 @@ export function installSidePanel({ isLesson }: SetupEditorOptions) {
     id: NodeReferencesPanel_ID,
     name: 'Node References',
     description: 'Node References Panel is showing how many times each core node and component is used.',
-    order: 23,
+    order: 24,
     icon: IconName.Component,
     panel: NodeReferencesPanel
   });

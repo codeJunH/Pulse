@@ -155,7 +155,8 @@ export enum IconName {
   SlidersFilled = 'sliders_filled',
   Navigate = 'navigate',
   Link = 'link',
-  SEO = 'seo'
+  SEO = 'seo',
+  AI = 'ai'
 }
 
 export enum IconSize {

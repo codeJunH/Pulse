@@ -128,16 +128,16 @@ export const copilotNodeCommands: CopilotCommandMetadata[] = [
     templateId: 'chat',
     title: '/Chat',
     tag: 'Chat',
-    description: 'Noodl 공식 문서 참조 및 프로젝트 구조 분석을 통해 질문에 답변합니다.',
-    placeholder: '무엇을 도와드릴까요?',
+    description: 'Get answers to your questions by referencing Noodl official documentation and analyzing project structure.',
+    placeholder: 'How can I help you?',
     type: PopupItemType.Custom,
     icon: IconName.Chat,
     availableOnFrontend: true,
     availableOnBackend: true,
     examples: [
-      'Noodl에서 사용자 인증을 어떻게 구현하나요?',
-      '현재 프로젝트에서 사용된 노드들의 목록을 보여주세요.',
-      '파일 시스템에서 JSON 파일을 읽는 방법을 알려주세요.'
+      'How do I implement user authentication in Noodl?',
+      'Show me a list of nodes used in the current project.',
+      'How do I read JSON files from the file system?'
     ]
   }
 ];
@@ -155,17 +155,17 @@ export const comingSoonCommands: CommandMetadata[] = [
     availableOnFrontend: true,
     availableOnBackend: false,
     examples: []
-  },
-  {
-    title: '/Suggest',
-    requireGPT4: true,
-    tag: 'Suggest Prompt',
-    description: 'Get suggestions',
-    placeholder: 'What to get suggestions for',
-    type: PopupItemType.Visual,
-    icon: IconName.Question,
-    availableOnFrontend: true,
-    availableOnBackend: false,
-    examples: ['What feature should I add next?', 'How can the form be improved?']
   }
+  // {
+  //   title: '/Suggest',
+  //   requireGPT4: true,
+  //   tag: 'Suggest Prompt',
+  //   description: 'Get suggestions',
+  //   placeholder: 'What to get suggestions for',
+  //   type: PopupItemType.Visual,
+  //   icon: IconName.Question,
+  //   availableOnFrontend: true,
+  //   availableOnBackend: false,
+  //   examples: ['What feature should I add next?', 'How can the form be improved?']
+  // }
 ];

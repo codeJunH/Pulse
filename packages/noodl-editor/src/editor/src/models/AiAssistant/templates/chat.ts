@@ -4,9 +4,10 @@ import { ChatMessageType } from '@noodl-models/AiAssistant/ChatHistory';
 import { AiCopilotContext } from '../AiCopilotContext';
 import { NodeGraphNode } from '@noodl-models/nodegraphmodel';
 import { NodeGraphModel } from '@noodl-models/nodegraphmodel/NodeGraphModel';
+import { OpenAiStore } from '@noodl-store/AiAssistantStore';
 
 export const template: AiNodeTemplate = {
-  type: 'green', // Or another appropriate color
+  type: 'green',
   name: 'ChatAssistant',
   onMessage: async (context) => {
     const activityId = 'processing';
@@ -23,53 +24,109 @@ export const template: AiNodeTemplate = {
         throw new Error('No prompt found.');
       }
 
-      // --- 1. Noodl 공식 문서 참조 (Context7을 통해 가져온 실제 스니펫 활용) ---
-      const simulatedDocSearchResult = searchNoodlDocs(userPrompt); // Context7 스니펫을 활용하는 가상 함수 호출
-
-      // --- 2. 사용자의 프로젝트 구조 분석 (NodeGraphModel을 통해 시뮬레이션) ---
-      let projectAnalysisResult: string | null = null;
+      // 프로젝트 구조 분석 - 더 체계적으로
+      let projectContext = '';
+      let nodesByType: { [key: string]: string[] } = {};
+      
       if (context.node && context.node.owner) {
         const nodeGraph: NodeGraphModel = context.node.owner;
-        let nodesInfo: string[] = [];
+        
         nodeGraph.forEachNode((node: NodeGraphNode) => {
           if (node.typename !== 'ChatAssistant' && node.id !== 'ChatAssistant') {
-            nodesInfo.push(`  - 노드 이름: ${node.typename || node.id}`);
+            const nodeType = node.typename || 'Unknown';
+            const nodeName = node.label || node.id || 'Unnamed';
+            
+            if (!nodesByType[nodeType]) {
+              nodesByType[nodeType] = [];
+            }
+            nodesByType[nodeType].push(nodeName);
           }
-          return false; // 모든 노드를 순회하기 위해 false 반환
+          return false;
         });
-        if (nodesInfo.length > 0) {
-          projectAnalysisResult = `현재 프로젝트에는 다음과 같은 노드들이 있습니다:\n${nodesInfo.join('\n')}`;
-        } else {
-          projectAnalysisResult = `현재 프로젝트에 노드가 없습니다.`;
+
+        // 프로젝트 컨텍스트 생성
+        if (Object.keys(nodesByType).length > 0) {
+          projectContext = `Current project analysis:
+
+Node types in use:
+${Object.entries(nodesByType).map(([type, nodes]) => 
+  `- ${type}: ${nodes.length} node(s) (${nodes.slice(0, 3).join(', ')}${nodes.length > 3 ? '...' : ''})`
+).join('\n')}
+
+`;
         }
-      } else {
-        projectAnalysisResult = `프로젝트 구조를 분석할 수 없습니다.`;
       }
 
-      // --- 3. AI 답변 생성 ---
-      let aiResponse = '';
-      if (simulatedDocSearchResult || projectAnalysisResult) {
-        aiResponse = `사용자님의 질문 \"${userPrompt}\"에 대해 Noodl 공식 문서와 프로젝트 구조를 바탕으로 답변을 준비했습니다.\n\n`;
-        if (simulatedDocSearchResult) {
-          aiResponse += `**문서 참조:** ${simulatedDocSearchResult}\n\n`;
-        }
-        if (projectAnalysisResult) {
-          aiResponse += `**프로젝트 분석:** ${projectAnalysisResult}\n\n`;
-        }
-        // 노드 생성 및 연결에 대한 답변 예시를 포함
-        const nodeSuggestion = generateNoodlNodeSuggestion(userPrompt); // 가상의 함수 호출
-        if (nodeSuggestion) {
-            aiResponse += `**제안:** ${nodeSuggestion}`;
-        } else {
-            aiResponse += `더 구체적인 도움이 필요하시면 언제든지 말씀해 주세요! 예를 들어:\n• 버튼 클릭 이벤트 처리\n• 데이터 저장 및 불러오기\n• API 호출 방법\n• UI 컴포넌트 연결\n• 사용자 인증 구현\n\n원하시는 기능을 알려주시면 더 자세한 가이드를 제공해드리겠습니다.`;
-        }
+      // Noodl 문서 참조 - Context7 데이터 기반 (하드코딩 부분 주석처리)
+      // const docContext = searchNoodlDocs(userPrompt);
+      // let noodlDocumentation = '';
+      // if (docContext) {
+      //   noodlDocumentation = `Relevant Noodl documentation:\n${docContext}\n\n`;
+      // }
 
-      } else {
-        aiResponse = `죄송합니다. \"${userPrompt}\"에 대한 구체적인 정보를 찾을 수 없었습니다.\n\n하지만 다음과 같은 일반적인 작업들에 대해서는 도움을 드릴 수 있습니다:\n• 노드 생성 및 연결\n• 데이터 바인딩\n• 이벤트 처리\n• 컴포넌트 구조 설계\n• Noodl 기본 기능 활용\n\n더 구체적인 질문을 해주시면 정확한 가이드를 제공해드리겠습니다!`;
-      }
+      // 노드 연결 제안 생성 (하드코딩 부분 주석처리)
+      // const nodeConnectionSuggestion = generateNodeConnectionAdvice(userPrompt, nodesByType);
 
+      // 시스템 컨텍스트 구성 - 실제 AI가 모든 답변 생성
+      const systemContext = `You are a helpful Noodl development assistant. You help users build web applications using the Noodl low-code platform.
 
-      context.chatHistory.add({ type: ChatMessageType.Assistant, content: aiResponse });
+${projectContext}
+
+Instructions:
+- You are an expert in Noodl low-code development
+- Provide specific, actionable guidance for Noodl development
+- When suggesting node connections, be precise about input/output ports
+- Reference the user's existing project structure when relevant
+- Include step-by-step instructions for complex workflows
+- Suggest specific node types and their configurations
+- Explain both the "what" and "why" of your suggestions
+- For node connections, use format: "Connect [Source Node]'s '[Output Port]' to [Target Node]'s '[Input Port]'"
+- Common Noodl nodes include: Group, Text, Button, Image, Function, Object, Variable, List, Repeater, Router, Navigate, State
+- Common ports: Button has 'Clicked' output, Text has 'Text' input, Navigate has 'Navigate' input
+- For data storage use Object nodes with properties, for persistence use JSONStorage in Function nodes
+- For lists use List + Repeater pattern, for navigation use Router + Navigate pattern
+
+Focus on practical, implementable solutions that work with Noodl's visual programming approach.`;
+
+      // 사용자 AI 룰 가져오기 (한국어로 대답 등)
+      const aiRules = OpenAiStore.getAiRules();
+      
+      // 대화 히스토리 준비
+      const history = context.chatHistory.messages.slice(0, -1).map((x) => ({
+        role: String(x.type),
+        content: x.content
+      }));
+
+      // 메시지 구성 (AI 룰이 있으면 시스템 컨텍스트에 포함)
+      const messages = [
+        {
+          role: 'system',
+          content: aiRules ? `${aiRules}\n\n${systemContext}` : systemContext
+        },
+        ...history,
+        {
+          role: 'user',
+          content: userPrompt
+        }
+      ];
+
+      // 실제 AI API 호출
+      context.chatHistory.add({ type: ChatMessageType.Assistant, content: '' });
+
+      const aiResponse = await context.chatStream({
+        provider: {
+          model: 'gpt-3.5-turbo',
+          temperature: 0.7,
+          max_tokens: 2048
+        },
+        messages,
+        onStream(fullText) {
+          context.chatHistory.updateLast({
+            content: fullText
+          });
+        }
+      });
+
       context.chatHistory.removeActivity(activityId);
     } catch (error) {
       ToastLayer.showError(error.message);
@@ -78,70 +135,120 @@ export const template: AiNodeTemplate = {
   }
 };
 
-// --- 가상의 함수 정의 (Context7을 통해 가져온 실제 스니펫을 기반으로 업데이트) ---
+// --- Context7 기반 실제 Noodl 문서 검색 (하드코딩 부분 주석처리) ---
+/*
 function searchNoodlDocs(query: string): string | null {
     const lowerCaseQuery = query.toLowerCase();
-    const relevantSnippets: { title: string; description: string; source: string }[] = [
+    
+    // Context7에서 가져온 실제 OpenNoodl 문서 정보
+    const noodlDocs = [
         {
-            title: "Build and Run Noodl Editor from Source",
-            description: "These npm commands are used for managing the Noodl Editor when building from source.",
-            source: "https://github.com/the-low-code-foundation/opennoodl/blob/main/README.md#_snippet_1"
+            title: "Node Connection",
+            description: "Connect nodes using input/output ports. Example: Connect Button's 'Clicked' output to Text's 'Text' input.",
+            keywords: ["connect", "connection", "port", "input", "output", "wire"],
+            example: "To connect a Button to a Text node: Drag from Button's 'Clicked' output port to Text's 'Text' input port."
         },
         {
-            title: "Read JSON File using Noodl Filesystem",
-            description: "This snippet illustrates how to read a JSON file using the Noodl platform's `filesystem` module.",
-            source: "https://github.com/the-low-code-foundation/opennoodl/blob/main/packages/noodl-platform/README.md#_snippet_4"
+            title: "Page Navigation",
+            description: "Use Router Navigate node to navigate between pages. Set target page in parameters.",
+            keywords: ["navigate", "page", "router", "navigation", "route"],
+            example: "Create a Navigate node, set 'target' parameter to '/Page 2', connect Button's 'Clicked' to Navigate's 'Navigate' input."
         },
         {
-            title: "Perform Noodl JSON Storage Operations",
-            description: "This TypeScript example demonstrates common operations with Noodl's `JSONStorage` for persistent configuration.",
-            source: "https://github.com/the-low-code-foundation/opennoodl/blob/main/packages/noodl-platform/README.md#_snippet_5"
+            title: "Data Storage",
+            description: "Use Object nodes to store data, Variable nodes for simple values. JSON Storage for persistence.",
+            keywords: ["data", "store", "object", "variable", "storage", "save"],
+            example: "Create Object node with properties like 'url,author'. Use JSONStorage.set('key', value) for persistent storage."
         },
         {
-            title: "Register Sidebar Panel with Noodl SidebarModel",
-            description: "Registers the previously defined `UndoQueuePanelView` as a new sidebar panel within the Noodl application.",
-            source: "https://github.com/the-low-code-foundation/opennoodl/blob/main/packages/noodl-editor/docs/sidebar.md#_snippet_1"
+            title: "List and Repeater",
+            description: "Create dynamic lists using List and Repeater nodes together.",
+            keywords: ["list", "repeat", "repeater", "dynamic", "array"],
+            example: "Connect data array to List node, create UI components inside Repeater node for each item."
         },
         {
-            title: "JSON Condition: Check Node Existence by Path",
-            description: "Defines a JSON condition to verify the existence or non-existence of a node at a specified path.",
-            source: "https://github.com/the-low-code-foundation/opennoodl/blob/main/packages/noodl-editor/docs/interactive-lessons.md#_snippet_5"
+            title: "API Integration",
+            description: "Use Function nodes for custom JavaScript. Access external APIs with fetch.",
+            keywords: ["api", "function", "javascript", "fetch", "external"],
+            example: "Create Function node, use fetch() in script to call APIs, connect outputs to other nodes."
         },
         {
-            title: "JSON Condition: Check Node Connection",
-            description: "Defines a JSON condition to verify if a connection exists between two specified nodes and their respective ports.",
-            source: "https://github.com/the-low-code-foundation/opennoodl/blob/main/packages/noodl-editor/docs/interactive-lessons.md#_snippet_6"
+            title: "Visual Components",
+            description: "Group, Text, Button, Image are basic visual components. Use Group for layout containers.",
+            keywords: ["group", "text", "button", "image", "visual", "component", "layout"],
+            example: "Create Group node as container, add Text and Button as children for UI layout."
+        },
+        {
+            title: "State Management",
+            description: "Use State nodes to manage component states with transitions and values.",
+            keywords: ["state", "states", "transition", "values", "manage"],
+            example: "Create State node with states like 'Visible,Hidden' and values like 'Opacity' for animations."
         }
     ];
 
-    for (const snippet of relevantSnippets) {
-        if (lowerCaseQuery.includes(snippet.title.toLowerCase()) || lowerCaseQuery.includes(snippet.description.toLowerCase())) {
-            return `${snippet.title} (${snippet.source}): ${snippet.description}`;
+    // 키워드 매칭으로 관련 문서 찾기
+    for (const doc of noodlDocs) {
+        const hasKeywordMatch = doc.keywords.some(keyword => 
+            lowerCaseQuery.includes(keyword) || keyword.includes(lowerCaseQuery)
+        );
+        
+        if (hasKeywordMatch) {
+            return `**${doc.title}**: ${doc.description}\n\nExample: ${doc.example}`;
         }
     }
+
     return null;
 }
+*/
 
-// 사용자 질문에 따라 Noodl 노드 생성 및 연결을 제안하는 로직
-function generateNoodlNodeSuggestion(prompt: string): string | null {
-    const lowerCasePrompt = prompt.toLowerCase();
+// --- 노드 연결 조언 생성 (하드코딩 부분 주석처리) ---
+/*
+function generateNodeConnectionAdvice(prompt: string, nodesByType: { [key: string]: string[] }): string {
+    const lowerPrompt = prompt.toLowerCase();
+    const existingNodeTypes = Object.keys(nodesByType);
+    
+    let advice = '';
 
-    if (lowerCasePrompt.includes('버튼') && lowerCasePrompt.includes('클릭') && lowerCasePrompt.includes('액션')) {
-        return "버튼 클릭 시 동작을 수행하려면 'Button' 노드의 'Clicked' 출력 포트를 'Action' 노드의 'Run' 입력 포트에 연결해야 합니다. 특정 로직을 구현하려면 Action 노드의 'Function' 속성에 JavaScript 코드를 추가하세요.";
-    } else if (lowerCasePrompt.includes('텍스트') && lowerCasePrompt.includes('표시') && lowerCasePrompt.includes('동적')) {
-        return "동적인 텍스트를 표시하려면 'Text' 노드를 사용하고, 텍스트 소스로 'Variable' 노드 또는 'Object' 노드의 속성을 'Text' 노드의 'Text' 입력 포트에 연결하세요.";
-    } else if (lowerCasePrompt.includes('데이터') && lowerCasePrompt.includes('저장') && lowerCasePrompt.includes('클라우드')) {
-        return "클라우드에 데이터를 저장하려면 'Create Record' 노드를 사용하세요. 먼저 'Cloud Service'를 설정하고, 'Class'를 정의한 다음, Create Record 노드의 'Class' 속성에 해당 클래스를 지정하고 'Data' 속성에 저장할 데이터를 연결하세요.";
-    } else if (lowerCasePrompt.includes('리스트') && lowerCasePrompt.includes('반복') && lowerCasePrompt.includes('데이터')) {
-        return "데이터 목록을 반복하여 UI 요소를 생성하려면 'List' 노드와 'Repeater' 노드를 함께 사용하세요. List 노드의 출력에 데이터 배열을 연결하고, Repeater 노드 내부에 반복될 UI 컴포넌트를 생성하세요.";
-    } else if (lowerCasePrompt.includes('api') && lowerCasePrompt.includes('호출') && lowerCasePrompt.includes('외부')) {
-        return "외부 API를 호출하려면 'Fetch API' 노드를 사용하세요. 'URL' 입력 포트에 API 엔드포인트를 지정하고, 필요한 경우 'Headers' 및 'Body' 속성을 설정하세요. API 응답은 'Response' 출력 포트로 연결됩니다.";
-    } else if (lowerCasePrompt.includes('파일') && lowerCasePrompt.includes('읽기') && lowerCasePrompt.includes('json')) {
-        return "JSON 파일을 읽으려면 @noodl/platform에서 filesystem 모듈을 가져와 filesystem.readJson(\"path/to/file.json\") 메서드를 사용하세요. 이 메서드는 파싱된 JSON 콘텐츠를 반환하는 Promise를 반환합니다. (Read JSON File using Noodl Filesystem)";
-    } else if (lowerCasePrompt.includes('데이터') && lowerCasePrompt.includes('저장') && lowerCasePrompt.includes('영구') && lowerCasePrompt.includes('구성')) {
-        return "영구 구성을 위해 데이터를 저장하려면 @noodl/platform에서 JSONStorage를 가져와 JSONStorage.set(\"my-key\", { key: \"value\" }) 메서드를 사용하세요. 데이터를 검색하려면 JSONStorage.get(\"my-key\")를 사용하고, 제거하려면 JSONStorage.remove(\"my-key\")를 사용하세요. (Perform Noodl JSON Storage Operations)";
-    } else if (lowerCasePrompt.includes('사용자 인증') || lowerCasePrompt.includes('로그인') || lowerCasePrompt.includes('회원가입')) {
-        return "Noodl에서 사용자 인증을 구현하려면 'User' 노드와 'Cloud Service'를 활용할 수 있습니다. 예를 들어, 로그인 기능을 만들려면 User 노드의 'Login' 액션 포트를 사용하고, 사용자 입력(이메일, 비밀번호)을 연결해야 합니다. 회원가입은 'Signup' 액션 포트를 통해 구현할 수 있습니다. 자세한 내용은 Noodl의 사용자 관리 관련 문서를 참조하거나, Cloud Service 설정을 확인하세요.";
+    // 사용자가 가진 노드를 기반으로 연결 제안
+    if (existingNodeTypes.length > 0) {
+        advice += `\nBased on your existing nodes (${existingNodeTypes.join(', ')}), here are connection suggestions:\n`;
     }
-    return null;
-} 
+
+    // 특정 기능별 노드 연결 가이드
+    if (lowerPrompt.includes('button') && lowerPrompt.includes('click')) {
+        advice += `\nFor button interactions:
+1. Use Button node's 'Clicked' output port
+2. Connect to target node's input (e.g., Text's 'Text' input for text changes)
+3. For navigation: Connect to Navigate node's 'Navigate' input
+4. For state changes: Connect to State node's state transition inputs\n`;
+    }
+
+    if (lowerPrompt.includes('data') || lowerPrompt.includes('store')) {
+        advice += `\nFor data management:
+1. Object nodes: Create properties and connect to UI elements
+2. Variable nodes: Store single values
+3. For persistence: Use Function node with JSONStorage.set('key', value)
+4. Connect Object's property outputs to Text's 'Text' input to display data\n`;
+    }
+
+    if (lowerPrompt.includes('list') || lowerPrompt.includes('repeat')) {
+        advice += `\nFor dynamic lists:
+1. Create List node with data array
+2. Add Repeater node as child
+3. Create UI components inside Repeater (Text, Button, etc.)
+4. Connect List's 'Items' output to Repeater's 'Items' input
+5. Use Repeater's 'Item' output to access individual items\n`;
+    }
+
+    if (lowerPrompt.includes('page') || lowerPrompt.includes('navigate')) {
+        advice += `\nFor page navigation:
+1. Create Router node in main component
+2. Add pages to Router's 'pages' parameter
+3. Use Navigate nodes for navigation
+4. Connect Button's 'Clicked' to Navigate's 'Navigate' input
+5. Set Navigate's 'target' parameter to destination page path\n`;
+    }
+
+    return advice;
+}
+*/ 
