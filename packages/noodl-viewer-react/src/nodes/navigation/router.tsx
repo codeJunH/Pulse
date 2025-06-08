@@ -58,6 +58,7 @@ const RouterNode = {
   name: 'Router',
   displayNodeName: 'Page Router',
   category: 'Visuals',
+  allowChildrenWithCategory: ['Visuals', 'CustomCode', 'Data'],
   docs: 'https://docs.noodl.net/nodes/navigation/page-router',
   useVariants: false,
   connectionPanel: {

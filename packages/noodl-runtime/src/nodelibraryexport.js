@@ -275,7 +275,7 @@ function generateNodeLibrary(nodeRegister) {
     }
 
     if (nodeMetadata.allowChildren) {
-      nodeObj.allowChildrenWithCategory = ['Visual'];
+      nodeObj.allowChildrenWithCategory = ['Visual', 'CustomCode', 'Data'];
       nodeObj.color = 'visual';
     }
     if (nodeMetadata.allowChildrenWithCategory) {

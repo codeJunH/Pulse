@@ -7,6 +7,7 @@ import { createTooltip } from '../../tooltips';
 const GroupNode = {
   name: 'Group',
   docs: 'https://docs.noodl.net/nodes/basic-elements/group',
+  allowChildrenWithCategory: true,
   connectionPanel: {
     groupPriority: ['General', 'Style', 'Events', 'Mounted', 'Hover Events', 'Pointer Events', 'Focus', 'Scroll']
   },

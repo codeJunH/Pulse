@@ -6,6 +6,7 @@ const ColumnsNode = {
   displayName: 'Columns',
   docs: 'https://docs.noodl.net/nodes/basic-elements/columns',
   allowChildren: true,
+  allowChildrenWithCategory: true,
   noodlNodeAsProp: true,
   connectionPanel: {
     groupPriority: [

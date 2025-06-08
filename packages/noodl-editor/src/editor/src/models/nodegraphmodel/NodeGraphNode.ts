@@ -857,6 +857,10 @@ export class NodeGraphNode extends Model {
       this.type &&
       this.parent &&
       this.parent.type &&
+      // Always allow Visual, Data and CustomCode categories
+      this.type.category !== 'Visual' &&
+      this.type.category !== 'Data' &&
+      this.type.category !== 'CustomCode' &&
       (!this.parent.type.allowChildrenWithCategory ||
         !this.type.category ||
         this.parent.type.allowChildrenWithCategory.indexOf(this.type.category) === -1);

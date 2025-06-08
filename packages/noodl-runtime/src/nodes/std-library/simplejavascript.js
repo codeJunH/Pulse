@@ -6,6 +6,7 @@ const SimpleJavascriptNode = {
   displayNodeName: 'Function',
   docs: 'https://docs.noodl.net/nodes/javascript/function',
   category: 'CustomCode',
+  allowAsChild: true,
   color: 'javascript',
   nodeDoubleClickAction: {
     focusPort: 'Script'
