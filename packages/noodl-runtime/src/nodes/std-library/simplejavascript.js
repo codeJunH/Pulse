@@ -8,6 +8,8 @@ const SimpleJavascriptNode = {
   category: 'CustomCode',
   allowAsChild: true,
   color: 'javascript',
+  hasVisual: false,
+  isVisual: false,
   nodeDoubleClickAction: {
     focusPort: 'Script'
   },
@@ -243,6 +245,10 @@ const SimpleJavascriptNode = {
         return this.registerOutput(name, {
           getter: this.getScriptOutputValue.bind(this, name.substring('out-'.length))
         });
+    },
+    // JavaScriptFunction does not render anything on screen
+    render: function() {
+      return null;
     }
   }
 };

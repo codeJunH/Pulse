@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 
 import { Icon, IconName } from '@noodl-core-ui/components/common/Icon';
 import { PrimaryButton, PrimaryButtonSize, PrimaryButtonVariant } from '@noodl-core-ui/components/inputs/PrimaryButton';
@@ -9,6 +9,7 @@ import { Columns } from '@noodl-core-ui/components/layout/Columns';
 import { HStack } from '@noodl-core-ui/components/layout/Stack';
 import { Label, LabelSize } from '@noodl-core-ui/components/typography/Label';
 import { TextType } from '@noodl-core-ui/components/typography/Text';
+import { useSimpleConfirmationDialog } from '@noodl-core-ui/components/popups/ConfirmationDialog/ConfirmationDialog.hooks';
 import { LauncherPage } from '@noodl-core-ui/preview/launcher/Launcher/components/LauncherPage';
 import {
   CloudSyncType,
@@ -20,15 +21,31 @@ import {
   useLauncherSearchBar
 } from '@noodl-core-ui/preview/launcher/Launcher/components/LauncherSearchBar';
 import { ProjectSettingsModal } from '@noodl-core-ui/preview/launcher/Launcher/components/ProjectSettingsModal';
-import { MOCK_PROJECTS } from '@noodl-core-ui/preview/launcher/Launcher/Launcher';
 
-export interface ProjectsViewProps {}
+// Import types for real project data
+export interface ProjectsViewProps {
+  onOpenProject?: () => void;
+  onCreateProject?: () => void;
+  onProjectLoaded?: (project: any) => void;
+  onProjectRemoved?: (projectId: string) => void;
+  projectsData?: LauncherProjectData[];
+}
 
-export function Projects({}: ProjectsViewProps) {
-  const allProjects = MOCK_PROJECTS;
-
+export function Projects({ 
+  onOpenProject,
+  onCreateProject, 
+  onProjectLoaded,
+  onProjectRemoved,
+  projectsData = []
+}: ProjectsViewProps) {
   const [selectedProjectId, setSelectedProjectId] = useState(null);
-  const uniqueTypes = [...new Set(allProjects.map((item) => item.cloudSyncMeta.type))];
+  const [RemoveProjectDialog, confirmRemoveProject] = useSimpleConfirmationDialog({
+    title: 'Remove Project',
+    confirmButtonLabel: 'Remove',
+    cancelButtonLabel: 'Cancel',
+    isDangerousAction: true
+  });
+  const uniqueTypes = [...new Set(projectsData.map((item) => item.cloudSyncMeta.type))];
   const visibleTypesDropdownItems: SelectOption[] = [
     { label: 'All projects', value: 'all' },
     ...uniqueTypes.map((type) => ({ label: `Only ${type.toLowerCase()} projects`, value: type }))
@@ -41,7 +58,7 @@ export function Projects({}: ProjectsViewProps) {
     searchTerm,
     setSearchTerm
   } = useLauncherSearchBar({
-    allItems: allProjects,
+    allItems: projectsData,
     filterDropdownItems: visibleTypesDropdownItems,
     propertyNameToFilter: 'cloudSyncMeta.type'
   });
@@ -54,12 +71,40 @@ export function Projects({}: ProjectsViewProps) {
     setSelectedProjectId(null);
   }
 
-  function onImportProjectClick() {
-    alert('FIXME: Import project');
+  async function onImportProjectClick() {
+    if (onOpenProject) {
+      onOpenProject();
+    }
   }
 
   function onNewProjectClick() {
-    alert('FIXME: Create new project');
+    if (onCreateProject) {
+      onCreateProject();
+    }
+  }
+
+  function onLaunchProject(project: LauncherProjectData) {
+    if (onProjectLoaded && project.localPath) {
+      // Load project from path
+      onProjectLoaded({ path: project.localPath, name: project.title });
+    }
+  }
+
+  function onRemoveProject(project: LauncherProjectData) {
+    // Use the custom confirmation dialog with a personalized message
+    const message = `Do you want to remove <strong>"${project.title}"</strong> from the recent projects list?<br><br>The project folder will remain intact and can be opened again later.`;
+    
+    // Show the dialog with the message
+    confirmRemoveProject(message)
+      .then(() => {
+        // User confirmed - remove the project
+        if (onProjectRemoved) {
+          onProjectRemoved(project.id);
+        }
+      })
+      .catch(() => {
+        // User cancelled - do nothing
+      });
   }
 
   return (
@@ -77,6 +122,7 @@ export function Projects({}: ProjectsViewProps) {
         </HStack>
       }
     >
+      <RemoveProjectDialog />
       <ProjectSettingsModal
         isVisible={selectedProjectId !== null}
         onClose={onCloseProjectSettings}
@@ -115,14 +161,20 @@ export function Projects({}: ProjectsViewProps) {
           <LauncherProjectCard
             key={project.id}
             {...project}
+            onClick={() => onLaunchProject(project)}
             contextMenuItems={[
               {
                 label: 'Launch project',
-                onClick: () => alert('FIXME: Launch project')
+                onClick: () => onLaunchProject(project)
               },
               {
                 label: 'Open project folder',
-                onClick: () => alert('FIXME: Open folder')
+                onClick: () => {
+                  if (project.localPath) {
+                    const shell = require('@electron/remote').shell;
+                    shell.showItemInFolder(project.localPath);
+                  }
+                }
               },
               {
                 label: 'Open project settings',
@@ -131,8 +183,8 @@ export function Projects({}: ProjectsViewProps) {
 
               'divider',
               {
-                label: 'Delete project',
-                onClick: () => alert('FIXME: Delete project'),
+                label: 'Remove from list',
+                onClick: () => onRemoveProject(project),
                 icon: IconName.Trash,
                 isDangerous: true
               }

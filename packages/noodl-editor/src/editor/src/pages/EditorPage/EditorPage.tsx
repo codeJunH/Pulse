@@ -110,7 +110,7 @@ export function EditorPage({ route }: EditorPageProps) {
     App.instance.off(this).on(
       'exitEditor',
       () => {
-        route.router.route({ to: 'projects' });
+        route.router.route({ to: 'launcher' });
 
         //close viewer window and broadcast that no project is open
         ipcRenderer.send('project-closed');

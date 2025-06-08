@@ -48,6 +48,26 @@
   font-family: var(--font-family);
   color: var(--theme-color-fg-default);
   user-select: none;
+  max-height: 160px; /* 5개 항목 정도의 높이 (32px * 5) */
+  overflow-y: auto;
+  
+  /* 스크롤바 스타일링 */
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: var(--theme-color-bg-2);
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: var(--theme-color-fg-muted);
+    border-radius: 3px;
+  }
+  
+  &::-webkit-scrollbar-thumb:hover {
+    background: var(--theme-color-fg-default);
+  }
 }
 
 .Option {

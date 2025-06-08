@@ -16,7 +16,7 @@ import { LauncherSection } from '@noodl-core-ui/preview/template/LauncherApp';
 
 import css from './LauncherSidebar.module.scss';
 
-const VERSION_NUMBER = '2.9.3';
+const VERSION_NUMBER = '2.0.0';
 export interface LauncherSidebarProps {
   pages: LauncherPageMetaData[];
   setActivePageId: (page: LauncherPageMetaData['id'] | string) => void;
@@ -35,7 +35,7 @@ export function LauncherSidebar({ pages, activePageId, setActivePageId }: Launch
           <HStack UNSAFE_style={{ alignItems: 'center', justifyContent: 'space-between' }}>
             <div>
               <Title variant={TitleVariant.Highlighted} size={TitleSize.Large}>
-                Noodl {VERSION_NUMBER}
+                Pulse {VERSION_NUMBER}
               </Title>
             </div>
 
@@ -51,6 +51,7 @@ export function LauncherSidebar({ pages, activePageId, setActivePageId }: Launch
             <Container direction={ContainerDirection.Vertical} hasYSpacing>
               {pages.map((page) => (
                 <ListItem
+                  key={page.id}
                   text={page.displayName}
                   icon={page.icon}
                   gutter={2}

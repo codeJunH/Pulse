@@ -5,6 +5,8 @@ export interface AppRouteOptions {
   from?: string;
   uri?: string;
   project?: ProjectModel;
+  createMode?: boolean;
+  openFolderMode?: boolean;
 }
 
 /** TODO: This will replace Router later */

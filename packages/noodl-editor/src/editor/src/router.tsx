@@ -16,6 +16,7 @@ import { AppRoute } from './pages/AppRoute';
 import { AppRouteOptions, AppRouter } from './pages/AppRouter';
 import { EditorPage } from './pages/EditorPage';
 import { ProjectsPage } from './pages/ProjectsPage';
+import { LauncherPage } from './pages/LauncherPage/LauncherPage';
 import { DialogLayerContainer } from './views/DialogLayer';
 import { ToastLayerContainer } from './views/ToastLayer';
 
@@ -74,10 +75,10 @@ export default class Router
   constructor(props) {
     super(props);
 
-    //start at projects page
+    //start at launcher page
     this.state = {
-      routeName: 'projects',
-      route: ProjectsPage,
+      routeName: 'launcher',
+      route: LauncherPage,
       routeArgs: { route: new AppRoute(this) }
     };
 
@@ -104,6 +105,42 @@ export default class Router
       null
     );
 
+    // Listen for navigation events from launcher
+    EventDispatcher.instance.on(
+      'navigateToProjects',
+      (args) => {
+        this.route({ to: 'projects', from: args?.from || 'launcher' });
+      },
+      null
+    );
+
+    // Listen for direct project creation navigation
+    EventDispatcher.instance.on(
+      'navigateToCreateProject',
+      (args) => {
+        this.route({ to: 'projects', from: args?.from || 'launcher', createMode: true });
+      },
+      null
+    );
+
+    // Listen for project loaded events
+    EventDispatcher.instance.on(
+      'projectLoaded',
+      (project) => {
+        this.route({ to: 'editor', project });
+      },
+      null
+    );
+
+    // Listen for navigation back to launcher
+    EventDispatcher.instance.on(
+      'navigateToLauncher',
+      () => {
+        this.route({ to: 'launcher' });
+      },
+      null
+    );
+
     PopupLayer.instance = new PopupLayer();
     $('body').append(PopupLayer.instance.render());
 
@@ -122,6 +159,11 @@ export default class Router
       import.meta.webpackHot.accept('./pages/ProjectsPage', () => {
         if (this._route === 'projects') {
           this.setState({ route: ProjectsPage });
+        }
+      });
+      import.meta.webpackHot.accept('./pages/LauncherPage/LauncherPage', () => {
+        if (this._route === 'launcher') {
+          this.setState({ route: LauncherPage });
         }
       });
     }
@@ -166,7 +208,12 @@ export default class Router
     } else if (args.to === 'projects') {
       this.setState({
         route: ProjectsPage,
-        routeArgs: { route, from: args.from }
+        routeArgs: { route, from: args.from, createMode: args.createMode, openFolderMode: args.openFolderMode }
+      });
+    } else if (args.to === 'launcher') {
+      this.setState({
+        route: LauncherPage,
+        routeArgs: { route }
       });
     }
   }

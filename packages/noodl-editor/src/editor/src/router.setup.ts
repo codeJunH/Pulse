@@ -69,7 +69,7 @@ export function installSidePanel({ isLesson }: SetupEditorOptions) {
 
   SidebarModel.instance.register({
     id: 'ai-chat',
-    name: 'Ask Noodl AI',
+    name: 'Ask Pulse AI',
     isDisabled: isLesson === true,
     order: 2,
     icon: IconName.AI,

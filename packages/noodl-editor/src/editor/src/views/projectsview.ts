@@ -15,6 +15,7 @@ import { tracker } from '../utils/tracker';
 import { timeSince } from '../utils/utils';
 import { getLessonsState } from './projectsview.lessonstate';
 import { ToastLayer } from './ToastLayer/ToastLayer';
+import { EventDispatcher } from '../../../shared/utils/EventDispatcher';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const ProjectsViewTemplate = require('../templates/projectsview.html');
@@ -47,8 +48,9 @@ export class ProjectsView extends View {
   projectTemplateLongDesc: TSFixme;
   isRenamingProject: boolean;
   projectFilter: TSFixme;
+  createMode: boolean;
 
-  constructor({ from }: { from: string }) {
+  constructor({ from, createMode }: { from: string; createMode?: boolean }) {
     super();
 
     this.lessonTemplatesModel = LessonTemplatesModel.instance;
@@ -58,6 +60,9 @@ export class ProjectsView extends View {
     this.from = from;
 
     this.attachBackgroundUpdateListener();
+
+    // If createMode is true, we'll show the create project screen immediately after render
+    this.createMode = createMode || false;
   }
 
   attachBackgroundUpdateListener() {
@@ -113,6 +118,14 @@ export class ProjectsView extends View {
     this.projectsModel.on('myProjectsChanged', () => this.renderProjectItemsPane(), this);
 
     this.switchPane('projects');
+
+    // If createMode is true, set up the initial state to show create project screen
+    if (this.createMode) {
+      // Set initial visibility immediately
+      this.$('.projects-list').hide();
+      this.$('.projects-create-new-project').show();
+      this.$('#projectsPane').css({ overflowY: 'auto' });
+    }
 
     // this.$('#top-bar').css({ height: this.topBarHeight + 'px' });
     // this.$('#projects-header').css({ top: this.topBarHeight + 'px' });
@@ -523,10 +536,17 @@ export class ProjectsView extends View {
   }
 
   onBackToProjectsListClicked() {
-    this.$('.projects-create-new-project').hide();
-    this.$('.projects-import-existing-project').hide();
-    this.$('.projects-list').show();
-    this.$('#projectsPane').css({ overflowY: '' });
+    // Check if we came from launcher and should go back to launcher
+    if (this.from === 'launcher') {
+      // Go back to launcher instead of just hiding the create project screen
+      EventDispatcher.instance.emit('navigateToLauncher');
+    } else {
+      // Normal behavior - just hide the create project screen and show project list
+      this.$('.projects-create-new-project').hide();
+      this.$('.projects-import-existing-project').hide();
+      this.$('.projects-list').show();
+      this.$('#projectsPane').css({ overflowY: '' });
+    }
   }
 
   async onImportExistingProjectClicked() {
@@ -673,6 +693,17 @@ export class ProjectsView extends View {
     this.$('#start-pane-feed-item-big-create-new-project').show();
 
     this.$('#start-pane-feed-big').show();
+
+    // Ensure input is focused after DOM is rendered
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        const input = this.$('#create-new-project-from-feed-item-name');
+        if (input.length > 0) {
+          input.focus();
+          input.select();
+        }
+      }, 50);
+    });
   }
 
   onSelectTemplateClicked(scope) {
@@ -696,7 +727,18 @@ export class ProjectsView extends View {
     );
     this.$('#start-pane-feed-big').show();
 
-    this.$('#create-new-project-from-feed-item-name').focus();
+    // Use requestAnimationFrame to ensure DOM is fully rendered before focusing
+    requestAnimationFrame(() => {
+      // Additional timeout to ensure input is fully interactive
+      setTimeout(() => {
+        const input = this.$('#create-new-project-from-feed-item-name');
+        if (input.length > 0) {
+          input.focus();
+          // Also select all text for better UX
+          input.select();
+        }
+      }, 50);
+    });
   }
 
   async onNewProjectFromSampleClicked() {

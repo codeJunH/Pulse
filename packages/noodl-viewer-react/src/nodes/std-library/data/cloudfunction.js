@@ -48,6 +48,8 @@ var CloudFunctionNode = {
   name: 'Cloud Function',
   category: 'Cloud Services',
   color: 'data',
+  hasVisual: false,
+  isVisual: false,
   usePortAsLabel: 'functionName',
   docs: 'https://docs.noodl.net/nodes/data/cloud-data/cloud-function',
   deprecated: true,

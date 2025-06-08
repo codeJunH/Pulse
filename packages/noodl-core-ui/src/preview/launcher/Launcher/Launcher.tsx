@@ -11,7 +11,16 @@ import { Projects } from '@noodl-core-ui/preview/launcher/Launcher/views/Project
 
 import { LauncherApp } from '../../template/LauncherApp';
 
-export interface LauncherProps {}
+export interface LauncherProps {
+  onOpenProject?: () => void;
+  onCreateProject?: () => void;
+  onProjectLoaded?: (project: any) => void;
+  onProjectRemoved?: (projectId: string) => void;
+  projectsData?: any[];
+  onMinimize?: () => void;
+  onMaximize?: () => void;
+  onClose?: () => void;
+}
 
 export enum LauncherPageId {
   LocalProjects,
@@ -116,7 +125,16 @@ export const MOCK_PROJECTS: LauncherProjectData[] = [
   }
 ];
 
-export function Launcher({}: LauncherProps) {
+export function Launcher({
+  onOpenProject,
+  onCreateProject,
+  onProjectLoaded,
+  onProjectRemoved,
+  projectsData = MOCK_PROJECTS,
+  onMinimize,
+  onMaximize,
+  onClose
+}: LauncherProps) {
   const pages = [...PAGES];
   const [activePageId, setActivePageId] = useState<LauncherPageMetaData['id']>(pages[0].id);
 
@@ -130,8 +148,19 @@ export function Launcher({}: LauncherProps) {
   return (
     <LauncherApp
       sidePanel={<LauncherSidebar pages={pages} activePageId={activePageId} setActivePageId={setActivePage} />}
+      onMinimize={onMinimize}
+      onMaximize={onMaximize}
+      onClose={onClose}
     >
-      {activePageId === LauncherPageId.LocalProjects && <Projects />}
+      {activePageId === LauncherPageId.LocalProjects && (
+        <Projects 
+          onOpenProject={onOpenProject}
+          onCreateProject={onCreateProject}
+          onProjectLoaded={onProjectLoaded}
+          onProjectRemoved={onProjectRemoved}
+          projectsData={projectsData}
+        />
+      )}
       {activePageId === LauncherPageId.LearningCenter && <LearningCenter />}
     </LauncherApp>
   );

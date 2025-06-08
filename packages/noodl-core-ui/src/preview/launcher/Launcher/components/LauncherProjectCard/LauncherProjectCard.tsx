@@ -73,6 +73,7 @@ export interface LauncherProjectData {
 
 export interface LauncherProjectCardProps extends LauncherProjectData {
   contextMenuItems: ContextMenuProps[];
+  onClick?: () => void;
 }
 
 export function LauncherProjectCard({
@@ -85,16 +86,41 @@ export function LauncherProjectCard({
   uncommittedChangesAmount,
   imageSrc,
   contextMenuItems,
-  contributors
+  contributors,
+  onClick
 }: LauncherProjectCardProps) {
+  const hasValidThumbnail = imageSrc && imageSrc.trim() !== '';
+
   return (
     <Card
       background={CardBackground.Bg2}
       hoverBackground={CardBackground.Bg3}
-      onClick={() => alert('FIXME: open project')}
+      onClick={onClick}
     >
       <Stack direction="row">
-        <div className={css.Image} style={{ backgroundImage: `url(${imageSrc})` }} />
+        <div 
+          className={css.Image} 
+          style={{ 
+            backgroundImage: hasValidThumbnail ? `url(${imageSrc})` : 'none',
+            backgroundPosition: 'center'
+          }}
+        >
+          {!hasValidThumbnail && (
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: 'var(--theme-color-bg-2)',
+                borderRadius: '2px 0 0 2px',
+                height: '100%',
+                width: '100%'
+              }}
+            >
+              <Icon icon={IconName.FolderClosed} variant={TextType.Shy} size={IconSize.Large} />
+            </div>
+          )}
+        </div>
 
         <div className={css.Details}>
           <Columns layoutString="1 1 1" hasXGap={4}>

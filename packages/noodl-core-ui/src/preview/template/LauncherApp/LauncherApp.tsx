@@ -135,11 +135,22 @@ export interface LauncherAppProps {
   title?: string;
 
   sidePanel?: JSX.Element;
+  
+  onMinimize?: () => void;
+  onMaximize?: () => void;
+  onClose?: () => void;
 
   children?: JSX.Element | JSX.Element[];
 }
 
-export function LauncherApp({ title = 'Noodl Launcher', sidePanel, children }: LauncherAppProps) {
+export function LauncherApp({ 
+  title = 'Pulse Launcher', 
+  sidePanel, 
+  onMinimize, 
+  onMaximize, 
+  onClose,
+  children 
+}: LauncherAppProps) {
   const size = insideFrame()
     ? {
         width: 1280,
@@ -152,14 +163,42 @@ export function LauncherApp({ title = 'Noodl Launcher', sidePanel, children }: L
 
   return (
     <div
-      className={classNames([css['Root']])}
+      className={classNames([
+        css['Root'],
+        !insideFrame() && css['no-title-bar']
+      ])}
       style={{
         ...size
       }}
     >
-      <div className={classNames([css['TitleBar']])}>{title}</div>
+      {/* Only show internal title bar in storybook/iframe */}
+      {insideFrame() && (
+        <div className={classNames([css['TitleBar']])}>
+          <div className={css['TitleText']}>{title}</div>
+          {/* Window controls for non-iframe environment */}
+          {!insideFrame() && (
+            <div className={css['WindowControls']}>
+              {onMinimize && (
+                <div className={css['WindowControl']} onClick={onMinimize}>
+                  −
+                </div>
+              )}
+              {onMaximize && (
+                <div className={css['WindowControl']} onClick={onMaximize}>
+                  □
+                </div>
+              )}
+              {onClose && (
+                <div className={classNames([css['WindowControl'], css['WindowControlClose']])} onClick={onClose}>
+                  ×
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
       <div className={classNames([css['SidePanel']])}>{sidePanel}</div>
-      <div>{children}</div>
+      <div className={classNames([css['MainContent']])}>{children}</div>
     </div>
   );
 }

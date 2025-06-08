@@ -18,9 +18,11 @@ import { BaseWindow } from '../../views/windows/BaseWindow';
 
 export interface ProjectsPageProps extends IRouteProps {
   from: TSFixme;
+  createMode?: boolean;
+  openFolderMode?: boolean;
 }
 
-export function ProjectsPage({ route, from }: ProjectsPageProps) {
+export function ProjectsPage({ route, from, createMode, openFolderMode }: ProjectsPageProps) {
   const [view, setView] = useState<ProjectsView>(null);
   const [showSpinner, setShowSpinner] = useState(false);
 
@@ -30,10 +32,17 @@ export function ProjectsPage({ route, from }: ProjectsPageProps) {
     // Switch main window size
     ipcRenderer.send('main-window-resize', { size: 'editor', center: true });
 
-    const instance = new ProjectsView({ from });
+    const instance = new ProjectsView({ from, createMode });
     instance.render();
 
     setView(instance);
+
+    // If openFolderMode is true, automatically trigger the open folder dialog
+    if (openFolderMode) {
+      setTimeout(() => {
+        instance.onImportExistingProjectClicked();
+      }, 100);
+    }
 
     instance.on(
       'projectLoaded',
@@ -57,11 +66,22 @@ export function ProjectsPage({ route, from }: ProjectsPageProps) {
       instance?.off(eventGroup);
       instance?.dispose();
     };
-  }, []);
+  }, [createMode, openFolderMode]);
+
+  // If in openFolderMode, render hidden or minimal UI
+  if (openFolderMode) {
+    return (
+      <BaseWindow title="">
+        <div style={{ display: 'none' }}>
+          <Frame instance={view} isAbsolute />
+        </div>
+      </BaseWindow>
+    );
+  }
 
   return (
     <BaseWindow title="">
-      <TopBar showSpinner={showSpinner} setShowSpinner={setShowSpinner} />
+      {!createMode && <TopBar showSpinner={showSpinner} setShowSpinner={setShowSpinner} />}
       <div style={{ position: 'relative', flex: 1 }}>
         <Frame instance={view} isAbsolute />
         {showSpinner && (

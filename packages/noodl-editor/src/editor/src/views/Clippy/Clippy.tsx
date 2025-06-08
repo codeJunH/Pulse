@@ -61,7 +61,8 @@ export default function Clippy() {
   const isFrontend = nodeGraphContext.active === 'frontend';
   const commandFilter = (x) =>
     ((x.availableOnFrontend && isFrontend) || (x.availableOnBackend && !isFrontend)) &&
-    (!x.requireGPT4 || (x.requireGPT4 && hasGPT4));
+    (!x.requireGPT4 || (x.requireGPT4 && hasGPT4) || 
+     (version === 'enterprise' || version === 'openrouter') && x.title !== '/Image');
 
   const promptToNode = promptToNodeCommands.filter(commandFilter);
   const copilotNodes = copilotNodeCommands.filter(commandFilter);
@@ -69,7 +70,8 @@ export default function Clippy() {
   const disabledDueToGpt3Items = promptToNodeCommands
     .concat(copilotNodeCommands)
     .concat(comingSoonCommands)
-    .filter((x) => x.requireGPT4 && !hasGPT4);
+    .filter((x) => x.requireGPT4 && !hasGPT4 && 
+             (version !== 'enterprise' && version !== 'openrouter' || x.title === '/Image'));
 
   const ALL_OPTIONS = [...promptToNode, ...copilotNodes];
 
@@ -77,32 +79,45 @@ export default function Clippy() {
 
   useEffect(() => {
     const version = OpenAiStore.getVersion();
+    console.log('Clippy useEffect - version:', version);
+    
     if (version === 'enterprise') {
       setHasApiKey(true);
       setHasGPT4(OpenAiStore.getModel() === 'gpt-4o-mini');
+    } else if (version === 'openrouter') {
+      const apiKey = OpenAiStore.getApiKey();
+      console.log('OpenRouter API Key exists:', !!apiKey);
+      setHasApiKey(!!apiKey);
+      setHasGPT4(true); // OpenRouter는 다양한 모델 지원
     } else if (version === 'full-beta') {
       setHasApiKey(OpenAiStore.getIsAiApiKeyVerified());
+      setHasGPT4(false); // 초기값, 아래 useEffect에서 검증
     } else {
       setHasGPT4(false);
       setHasApiKey(false);
     }
-  }, [isInputOpen]);
+  }, [version]); // isInputOpen 대신 version으로 변경
 
   useEffect(() => {
+    const version = OpenAiStore.getVersion();
+    console.log('Clippy second useEffect - version:', version, 'hasApiKey:', hasApiKey);
+    
     if (!hasApiKey) return;
 
     async function doIt() {
-      const version = OpenAiStore.getVersion();
       if (version === 'enterprise') {
         setHasGPT4(OpenAiStore.getModel() === 'gpt-4o-mini');
-      } else {
+      } else if (version === 'openrouter') {
+        setHasGPT4(true); // OpenRouter는 다양한 모델 지원
+        console.log('OpenRouter hasGPT4 set to true');
+      } else if (version === 'full-beta') {
         const models = await verifyOpenAiApiKey(OpenAiStore.getApiKey());
         setHasGPT4(!!models['gpt-4o-mini']);
       }
     }
 
     doIt();
-  }, [hasApiKey]);
+  }, [hasApiKey, version]);
 
   //check for clicks outside clippy, which should close it if it's open and not thinking
   useEffect(() => {
@@ -211,14 +226,18 @@ export default function Clippy() {
     aiAssistantModel.removeActivity(id);
   }
 
-  const initialPlaceholder = isInputOpen ? 'Select (or type) a command below' : 'Ask Noodl AI';
+  const initialPlaceholder = isInputOpen ? 'Select (or type) a command below' : 'Ask Pulse AI';
   const isPromptInWrongOrder = Boolean(!selectedOption) && Boolean(secondInputValue);
-  const isFullBeta = ['full-beta', 'enterprise'].includes(version);
+  const isFullBeta = ['full-beta', 'enterprise', 'openrouter'].includes(version);
   const isLimitedBeta = false; // TODO: version === 'limited-beta';
 
   let isCommandsEnabled = isLimitedBeta;
   if (version === 'enterprise') {
     isCommandsEnabled = true;
+  } else if (version === 'openrouter') {
+    // OpenRouter의 경우 API 키만 있으면 활성화
+    isCommandsEnabled = !!hasApiKey;
+    console.log('OpenRouter - hasApiKey:', hasApiKey, 'isCommandsEnabled:', isCommandsEnabled);
   } else if (isFullBeta) {
     if (!hasGPT4 || !hasApiKey) {
       isCommandsEnabled = false;
@@ -226,10 +245,14 @@ export default function Clippy() {
       isCommandsEnabled = true;
     }
   }
+  
+  console.log('Clippy Debug - version:', version, 'hasApiKey:', hasApiKey, 'hasGPT4:', hasGPT4, 'isCommandsEnabled:', isCommandsEnabled);
 
   let versionLabel = '';
   if (version === 'enterprise') {
     versionLabel = `Enterprise (${OpenAiStore.getModel()})`;
+  } else if (version === 'openrouter') {
+    versionLabel = `OpenRouter (${OpenAiStore.getModel()})`;
   } else if (isLimitedBeta) {
     versionLabel = 'Limited Beta (gpt-3)';
   } else if (isFullBeta && hasApiKey && hasGPT4) {
@@ -397,7 +420,29 @@ export default function Clippy() {
         <div className={css.UglySpacingHackPleaseLookAway} />
 
         <div className={classNames(css.ClippyPopup, isInputOpen && !isAiThinking && css.__isVisible)}>
-          {isFullBeta && !isCommandsEnabled && (
+          {isFullBeta && !isCommandsEnabled && version === 'openrouter' && (
+            <div className={css.ClippyNoApiKey}>
+              <Title hasBottomSpacing>Add your OpenRouter API key</Title>
+              <Text hasBottomSpacing>You need an OpenRouter API key to access various AI models.</Text>
+              <Text>
+                1. Get your API key from your{' '}
+                <a href="https://openrouter.ai/keys" target="_blank" rel="noreferrer">
+                  OpenRouter account
+                </a>
+              </Text>
+              <Text>2. Choose from various models including Claude, GPT, Gemini, and more</Text>
+              <Text hasBottomSpacing>3. Paste the key into the AI section in the Editor Settings panel</Text>
+
+              <PrimaryButton
+                size={PrimaryButtonSize.Small}
+                variant={PrimaryButtonVariant.MutedOnLowBg}
+                onClick={() => SidebarModel.instance.switch('editor-settings')}
+                label="Open editor settings"
+              />
+            </div>
+          )}
+          
+          {isFullBeta && !isCommandsEnabled && version !== 'openrouter' && (
             <div className={css.ClippyNoApiKey}>
               <Title hasBottomSpacing>Add your OpenAI API key</Title>
               <Text hasBottomSpacing>You need a GPT-4 API key to access the full beta features.</Text>

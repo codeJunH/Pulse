@@ -112,11 +112,19 @@ export function AiChatPanel() {
   // API Key와 GPT4 상태 확인
   useEffect(() => {
     const version = OpenAiStore.getVersion();
+    console.log('AiChatPanel useEffect - version:', version);
+    
     if (version === 'enterprise') {
       setHasApiKey(true);
       setHasGPT4(OpenAiStore.getModel() === 'gpt-4o-mini');
+    } else if (version === 'openrouter') {
+      const apiKey = OpenAiStore.getApiKey();
+      console.log('AiChatPanel OpenRouter API Key exists:', !!apiKey);
+      setHasApiKey(!!apiKey);
+      setHasGPT4(true); // OpenRouter는 다양한 모델 지원
     } else if (version === 'full-beta') {
       setHasApiKey(OpenAiStore.getIsAiApiKeyVerified());
+      setHasGPT4(false); // 초기값, 아래 useEffect에서 검증
     } else {
       setHasGPT4(false);
       setHasApiKey(false);
@@ -130,7 +138,10 @@ export function AiChatPanel() {
       const version = OpenAiStore.getVersion();
       if (version === 'enterprise') {
         setHasGPT4(OpenAiStore.getModel() === 'gpt-4o-mini');
-      } else {
+      } else if (version === 'openrouter') {
+        setHasGPT4(true); // OpenRouter는 다양한 모델 지원
+        console.log('AiChatPanel OpenRouter hasGPT4 set to true');
+      } else if (version === 'full-beta') {
         try {
           const models = await verifyOpenAiApiKey(OpenAiStore.getApiKey());
           setHasGPT4(!!models['gpt-4o-mini']);
@@ -146,9 +157,11 @@ export function AiChatPanel() {
   // 명령어 필터링
   const nodeGraphContext = NodeGraphContextTmp;
   const isFrontend = nodeGraphContext.active === 'frontend';
+  const currentVersion = OpenAiStore.getVersion();
   const commandFilter = (x) =>
     ((x.availableOnFrontend && isFrontend) || (x.availableOnBackend && !isFrontend)) &&
-    (!x.requireGPT4 || (x.requireGPT4 && hasGPT4));
+    (!x.requireGPT4 || (x.requireGPT4 && hasGPT4) || 
+     (currentVersion === 'enterprise' || currentVersion === 'openrouter') && x.title !== '/Image');
 
   const promptToNode = promptToNodeCommands.filter(commandFilter);
   const copilotNodes = copilotNodeCommands.filter(commandFilter);
@@ -156,7 +169,8 @@ export function AiChatPanel() {
   const disabledDueToGpt3Items = promptToNodeCommands
     .concat(copilotNodeCommands)
     .concat(comingSoonCommands)
-    .filter((x) => x.requireGPT4 && !hasGPT4);
+    .filter((x) => x.requireGPT4 && !hasGPT4 && 
+             (currentVersion !== 'enterprise' && currentVersion !== 'openrouter' || x.title === '/Image'));
 
   const ALL_OPTIONS = [...promptToNode, ...copilotNodes];
 
@@ -260,21 +274,26 @@ export function AiChatPanel() {
     }
   };
 
-  const version = OpenAiStore.getVersion();
-  const isFullBeta = ['full-beta', 'enterprise'].includes(version);
+  const isFullBeta = ['full-beta', 'enterprise', 'openrouter'].includes(currentVersion);
   let isCommandsEnabled = false;
   
-  if (version === 'enterprise') {
+  if (currentVersion === 'enterprise') {
     isCommandsEnabled = true;
+  } else if (currentVersion === 'openrouter') {
+    // OpenRouter의 경우 API 키만 있으면 활성화
+    isCommandsEnabled = !!hasApiKey;
+    console.log('AiChatPanel OpenRouter - hasApiKey:', hasApiKey, 'isCommandsEnabled:', isCommandsEnabled);
   } else if (isFullBeta) {
     if (hasGPT4 && hasApiKey) {
       isCommandsEnabled = true;
     }
   }
+  
+  console.log('AiChatPanel Debug - version:', currentVersion, 'hasApiKey:', hasApiKey, 'hasGPT4:', hasGPT4, 'isCommandsEnabled:', isCommandsEnabled);
 
   if (!enableAi) {
     return (
-      <BasePanel title="Ask Noodl AI">
+      <BasePanel title="Ask Pulse AI">
         <Center>
           <Text textType={TextType.Shy}>AI is disabled. Enable it in the Editor Settings panel.</Text>
         </Center>
@@ -358,7 +377,7 @@ export function AiChatPanel() {
   );
 
   return (
-    <BasePanel title="Ask Noodl AI" isFill hasContentScroll footerSlot={footerContent}>
+    <BasePanel title="Ask Pulse AI" isFill hasContentScroll footerSlot={footerContent}>
       {/* 명령어 목록 영역 */}
       <div style={{ padding: '8px' }}>
         {isCommandMode && isCommandsEnabled && (

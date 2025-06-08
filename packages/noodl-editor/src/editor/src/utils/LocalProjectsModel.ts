@@ -40,6 +40,13 @@ export class LocalProjectsModel extends Model {
 
     const existingFolders = folders.filter((x) => filesystem.exists(x.retainedProjectDirectory));
 
+    // Ensure all projects have thumbURI property (backwards compatibility)
+    existingFolders.forEach(project => {
+      if (typeof project.thumbURI === 'undefined') {
+        project.thumbURI = '';
+      }
+    });
+
     existingFolders.sort((a, b) => b.latestAccessed - a.latestAccessed);
 
     if (!this.projectEntries || (this.projectEntries && !isEqual(this.projectEntries, existingFolders))) {
@@ -115,7 +122,10 @@ export class LocalProjectsModel extends Model {
         'thumbnailChanged',
         () => {
           const projectdir = this.getProjectEntryWithId(project.id);
-          if (projectdir) projectdir.thumbURI = project.getThumbnailURI();
+          if (projectdir) {
+            // Get thumbnail URI, fallback to empty string if not available
+            projectdir.thumbURI = project.getThumbnailURI() || '';
+          }
           this.store();
         },
         this
@@ -135,6 +145,9 @@ export class LocalProjectsModel extends Model {
   _addProject(project: ProjectModel) {
     if (!project._retainedProjectDirectory) return;
 
+    // Get thumbnail URI, fallback to empty string if not available
+    const thumbnailURI = project.getThumbnailURI() || '';
+
     // Push directory entry
     const id = guid();
     this.projectEntries.push({
@@ -142,7 +155,7 @@ export class LocalProjectsModel extends Model {
       latestAccessed: Date.now(),
       id: id, // Generate a new project id (will be used internally to store project specific local settings)
       name: project.name ? project.name : 'Untitled',
-      thumbURI: project.getThumbnailURI()
+      thumbURI: thumbnailURI
     });
     project.id = id;
 

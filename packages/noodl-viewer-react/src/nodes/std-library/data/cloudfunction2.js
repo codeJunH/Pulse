@@ -48,6 +48,8 @@ var CloudFunctionNode = {
   displayName: 'Cloud Function',
   category: 'Cloud Services',
   color: 'data',
+  hasVisual: false,
+  isVisual: false,
   usePortAsLabel: 'function',
   docs: 'https://docs.noodl.net/nodes/data/cloud-data/cloud-function',
   initialize: function () {

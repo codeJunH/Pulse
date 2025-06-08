@@ -1,9 +1,12 @@
 .Image {
+  position: relative;
   width: 100px;
+  height: 100px;
   margin: -16px;
   margin-right: 16px;
   border-radius: 2px 0 0 2px;
   background-size: cover;
+  overflow: hidden;
 }
 
 .Details {

@@ -51,15 +51,45 @@ export async function saveImageDataToDisk(imageData: { type: string; data: Buffe
 
 export async function makeChatRequest(model: string, messages: unknown[]) {
   const OPENAI_API_KEY = OpenAiStore.getApiKey();
-  const response = await fetch(`https://api.openai.com/v1/chat/completions`, {
+  
+  // endpoint 설정
+  let endpoint = 'https://api.openai.com/v1/chat/completions';
+  if (OpenAiStore.getVersion() === 'openrouter') {
+    endpoint = 'https://openrouter.ai/api/v1/chat/completions';
+  } else if (OpenAiStore.getVersion() === 'enterprise') {
+    endpoint = OpenAiStore.getEndpoint();
+  }
+  
+  // 헤더 설정
+  let headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    Authorization: 'Bearer ' + OPENAI_API_KEY
+  };
+  
+  // OpenRouter는 특수 헤더가 필요하므로 다시 추가
+  if (OpenAiStore.getVersion() === 'openrouter') {
+    headers['HTTP-Referer'] = 'https://pulse-editor.local';
+    headers['X-Title'] = 'Pulse Editor';
+  }
+  
+  // AI 룰 적용
+  const aiRules = OpenAiStore.getAiRules();
+  console.log('Clippy AI Rules Debug:', {
+    aiRules,
+    hasRules: !!aiRules,
+    version: OpenAiStore.getVersion(),
+    endpoint: endpoint
+  });
+  const messagesWithRules = aiRules ? [{ role: 'system', content: aiRules }, ...messages] : messages;
+  
+  const response = await fetch(endpoint, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: 'Bearer ' + OPENAI_API_KEY
-    },
+    headers,
     body: JSON.stringify({
-      model,
-      messages,
+      model: OpenAiStore.getVersion() === 'openrouter' || OpenAiStore.getVersion() === 'enterprise' 
+        ? OpenAiStore.getModel() || model 
+        : model,
+      messages: messagesWithRules,
       temperature: 0.5,
       max_tokens: 2048
     })

@@ -8,6 +8,7 @@ import { AiNodeTemplate, AiNodeTemplateType } from '@noodl-models/AiAssistant/in
 import { ComponentModel } from '@noodl-models/componentmodel';
 import { NodeGraphModel, NodeGraphNode, NodeGraphNodeSet } from '@noodl-models/nodegraphmodel';
 import { ProjectModel } from '@noodl-models/projectmodel';
+import { getDefaultComponent } from '@noodl-models/projectmodel.utils';
 import { Model } from '@noodl-utils/model';
 import { guid } from '@noodl-utils/utils';
 
@@ -263,11 +264,25 @@ export class AiAssistantModel extends Model<AiAssistantEvent, AiAssistantEvents>
           nodes.push(node);
         }
       } else {
+        // 현재 활성화된 컴포넌트의 그래프 모델에 노드를 추가
+        const currentComponent = NodeGraphContextTmp.nodeGraph?.activeComponent;
+        const targetGraphModel = currentComponent ? currentComponent.graph : getDefaultComponent().graph;
+        
+        // Visual 노드를 수용할 수 있는 적절한 부모 노드를 찾기
+        let visualParent = targetGraphModel.roots.find((root) => root.type.allowChildrenWithCategory?.includes('Visual'));
+        
         nodeset.nodes.forEach((node) => {
           if (node.metadata.templateId === 'chat') {
             node.metadata.prompt = "{\"history\":[]}";
           }
-          ProjectModel.instance.rootNode.addChild(node);
+          
+          if (visualParent) {
+            // Page나 Group 같은 visual container에 추가
+            visualParent.addChild(node);
+          } else {
+            // 적절한 visual parent가 없으면 루트로 추가
+            targetGraphModel.addRoot(node);
+          }
           nodes.push(node);
         });
       }
