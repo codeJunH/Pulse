@@ -5,6 +5,7 @@ import { AiCopilotContext } from '../AiCopilotContext';
 import { NodeGraphNode } from '@noodl-models/nodegraphmodel';
 import { NodeGraphModel } from '@noodl-models/nodegraphmodel/NodeGraphModel';
 import { OpenAiStore } from '@noodl-store/AiAssistantStore';
+import { wrapInput, wrapOutput } from '@noodl-models/AiAssistant/templates/helper';
 
 export const template: AiNodeTemplate = {
   type: 'green',
@@ -84,35 +85,27 @@ export const template: AiNodeTemplate = {
         }
       }
 
-      // 향상된 시스템 컨텍스트
+      // 향상된 시스템 컨텍스트 with XML formatting for highlighting
       const systemContext = `You are an expert Noodl low-code development assistant. Your goal is to provide clear, concise, and actionable guidance to help users build web applications with Noodl.
 
-Analyze the user's query and the provided project context. Structure your response in two parts: "Summary" and "Actionable Steps".
+Analyze the user's query and the provided project context. Structure your response using XML tags to highlight important information:
 
-**1. Summary:**
-Start with a brief, high-level summary of the solution or explanation.
+- Use <Input>PortName</Input> to highlight input port names
+- Use <Output>PortName</Output> to highlight output port names  
+- Use <explain>content</explain> for main explanations
 
-**2. Actionable Steps:**
-Provide a detailed, step-by-step guide to implement the solution. Use specific Noodl terminology.
+Format your response with:
 
-- When suggesting node connections, use the format: "Connect [Source Node]'s '[Output Port]' to [Target Node]'s '[Input Port]'".
-- Reference the user's existing project structure from the "Current project analysis" when relevant.
-- Suggest specific node types (e.g., Group, Text, Button, Function, Object, Variable, List, Repeater, Router, Navigate, State) and their important parameters.
-- Explain the "what" and the "why" of your suggestions.
-
-Here is an example of the desired output format:
-
-<example>
 **Summary:**
-To display a list of products from a database, you need to query the records, and then use a Repeater to dynamically create the UI for each product.
+<explain>Brief, high-level summary of the solution or explanation.</explain>
 
 **Actionable Steps:**
-1.  **Query Products:** Use a "Query Records" node to fetch data from your 'Products' collection.
-2.  **Create a List:** Add a "List" node and connect the "Items" output from the "Query Records" node to the "Items" input of the "List" node.
-3.  **Use a Repeater:** Place a "Repeater" node inside a "Group" or other container. Connect the "Items" output of the "List" node to the "Items" input of the "Repeater".
-4.  **Design the Item UI:** Inside the "Repeater", design how each product will look. For example, add a "Text" node.
-5.  **Display Data:** Connect the "Item" output of the "Repeater" to the "Object" input of the "Text" node. Then, set the "Text" node's "Text" parameter to \`item.name\` to display the product name.
-</example>
+<explain>Step-by-step guide with specific instructions. When mentioning node connections, wrap port names with appropriate tags.</explain>
+
+For example:
+- "Connect Button's <Output>Clicked</Output> to Text's <Input>Text</Input>"
+- "Set the <Input>Items</Input> input of the Repeater"
+- "Use the <Output>Item</Output> output from the Repeater"
 
 ${projectContext}
 `;
@@ -139,20 +132,85 @@ ${projectContext}
         }
       ];
 
-      // 실제 AI API 호출
+      // 실제 AI API 호출 with XML streaming for highlighting
       context.chatHistory.add({ type: ChatMessageType.Assistant, content: '' });
 
-      const aiResponse = await context.chatStream({
+      const result = [''];
+
+      await context.chatStreamXml({
         provider: {
           model: 'gpt-4o-mini',
           temperature: 0.2,
           max_tokens: 2048
         },
         messages,
-        onStream(fullText) {
-          context.chatHistory.updateLast({
-            content: fullText
-          });
+        onStream(tagName, text) {
+          if (text.length === 0) {
+            return;
+          }
+
+          console.log('chat stream', tagName, text);
+
+          switch (tagName) {
+            case 'explain': {
+              result[result.length - 1] = text;
+              break;
+            }
+
+            case 'Input': {
+              result[result.length - 1] = wrapInput(text);
+              break;
+            }
+
+            case 'Output': {
+              result[result.length - 1] = wrapOutput(text);
+              break;
+            }
+          }
+
+          if (['explain', 'Input', 'Output'].includes(tagName)) {
+            context.chatHistory.updateLast({
+              content: result.join('')
+            });
+          }
+        },
+        onTagOpen(tagName) {
+          switch (tagName) {
+            case 'Input':
+            case 'Output': {
+              result.push('');
+              break;
+            }
+          }
+        },
+        onTagEnd(tagName, fullText) {
+          console.log('[chat done]', tagName, fullText);
+
+          switch (tagName) {
+            case 'explain': {
+              result[result.length - 1] = fullText;
+              result.push('');
+              break;
+            }
+
+            case 'Input': {
+              result[result.length - 1] = wrapInput(fullText);
+              result.push('');
+              break;
+            }
+
+            case 'Output': {
+              result[result.length - 1] = wrapOutput(fullText);
+              result.push('');
+              break;
+            }
+          }
+
+          if (['explain', 'Input', 'Output'].includes(tagName)) {
+            context.chatHistory.updateLast({
+              content: result.join('')
+            });
+          }
         }
       });
 

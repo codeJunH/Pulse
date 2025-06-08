@@ -4,6 +4,10 @@
   font-family: var(--font-family);
   font-size: 12px;
   color: var(--theme-color-fg-default);
+  word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
 
   h1,
   h2,
@@ -14,12 +18,18 @@
     font-family: var(--font-family);
     color: var(--theme-color-fg-default);
     font-weight: 600;
+    word-wrap: break-word;
+    word-break: break-word;
+    overflow-wrap: break-word;
   }
 
   p {
     font-family: var(--font-family);
     color: var(--theme-color-fg-default);
     font-size: 12px;
+    word-wrap: break-word;
+    word-break: break-word;
+    overflow-wrap: break-word;
 
     margin: 0 0 8px 0;
   }
@@ -53,5 +63,40 @@
 
   img {
     max-width: 100%;
+  }
+
+  // AI highlighting styles matching the function mode
+  // Use the same yellow color as AI function mode
+  strong {
+    color: var(--base-color-yellow-400, #f1c40f);
+    font-weight: 600;
+    background: none;
+    padding: 0;
+  }
+
+  // Code highlighting with yellow color
+  code {
+    color: var(--base-color-yellow-400, #f1c40f);
+    background: none;
+    padding: 0;
+    font-family: var(--font-family-mono, monospace);
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  // Special handling for span elements with inline styles (AI function output)
+  span[style*="color: var(--base-color-yellow-400)"] {
+    color: var(--base-color-yellow-400, #f1c40f) !important;
+    font-weight: 600;
+  }
+
+  // Explicit highlight class for AI responses
+  .highlight,
+  em.highlight {
+    color: var(--base-color-yellow-400, #f1c40f);
+    font-style: normal;
+    font-weight: 600;
+    background: none;
+    padding: 0;
   }
 }

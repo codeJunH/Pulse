@@ -88,34 +88,106 @@ export function PropertyEditor(props: PropertyEditorProps) {
 }
 
 function AiPropertyEditor(props: PropertyEditorProps & { instance: PropertyEditorView }) {
+  const [activeTab, setActiveTab] = useState('AI Chat');
+
+  if (activeTab === 'AI Chat') {
+    return (
+      <div style={{ position: 'relative', height: '100%', width: '100%', display: 'flex', flexDirection: 'column' }}>
+        <NodeLabel {...props} showHelp={false} />
+        
+        {/* Custom tab buttons */}
+        <div style={{ 
+          display: 'flex', 
+          marginLeft: '-2px',
+          marginBottom: '8px'
+        }}>
+          <button
+            style={{
+              backgroundColor: 'var(--theme-color-bg-1)',
+              color: 'var(--theme-color-fg-highlight)',
+              flexGrow: 1,
+              border: 'none',
+              padding: '12px 16px',
+              marginLeft: '2px',
+              cursor: 'pointer'
+            }}
+            onClick={() => setActiveTab('AI Chat')}
+          >
+            AI Chat
+          </button>
+          <button
+            style={{
+              backgroundColor: 'var(--theme-color-bg-3)',
+              color: 'var(--theme-color-fg-default)',
+              flexGrow: 1,
+              border: 'none',
+              padding: '12px 16px',
+              marginLeft: '2px',
+              cursor: 'pointer'
+            }}
+            onClick={() => setActiveTab('Properties')}
+          >
+            Properties
+          </button>
+        </div>
+
+        {/* AI Chat takes full remaining space */}
+        <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+          <AiChat
+            model={props.model}
+            onUpdated={() => {
+              // Update the property panel values
+              props.instance.render();
+            }}
+          />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div style={{ position: 'relative', height: '100%', width: '100%', display: 'flex', flexDirection: 'column' }}>
       <NodeLabel {...props} showHelp={false} />
-      <Tabs
-        variant={TabsVariant.Sidebar}
-        tabs={[
-          {
-            label: 'AI Chat',
-            content: (
-              <AiChat
-                model={props.model}
-                onUpdated={() => {
-                  // Update the property panel values
-                  props.instance.render();
-                }}
-              />
-            )
-          },
-          {
-            label: 'Properties',
-            content: (
-              <ScrollArea>
-                <Frame instance={props.instance} isContentSize UNSAFE_style={{ flex: 1 }} />
-              </ScrollArea>
-            )
-          }
-        ]}
-      />
+      
+      {/* Custom tab buttons */}
+      <div style={{ 
+        display: 'flex', 
+        marginLeft: '-2px',
+        marginBottom: '8px'
+      }}>
+        <button
+          style={{
+            backgroundColor: 'var(--theme-color-bg-3)',
+            color: 'var(--theme-color-fg-default)',
+            flexGrow: 1,
+            border: 'none',
+            padding: '12px 16px',
+            marginLeft: '2px',
+            cursor: 'pointer'
+          }}
+          onClick={() => setActiveTab('AI Chat')}
+        >
+          AI Chat
+        </button>
+        <button
+          style={{
+            backgroundColor: 'var(--theme-color-bg-1)',
+            color: 'var(--theme-color-fg-highlight)',
+            flexGrow: 1,
+            border: 'none',
+            padding: '12px 16px',
+            marginLeft: '2px',
+            cursor: 'pointer'
+          }}
+          onClick={() => setActiveTab('Properties')}
+        >
+          Properties
+        </button>
+      </div>
+
+      <ScrollArea>
+        <Frame instance={props.instance} isContentSize UNSAFE_style={{ flex: 1 }} />
+      </ScrollArea>
     </div>
   );
 }

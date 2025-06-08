@@ -23,6 +23,7 @@ import { TextArea } from '@noodl-core-ui/components/inputs/TextArea';
 import { Box } from '@noodl-core-ui/components/layout/Box';
 import { Center } from '@noodl-core-ui/components/layout/Center';
 import { VStack } from '@noodl-core-ui/components/layout/Stack';
+import { Section } from '@noodl-core-ui/components/sidebar/Section';
 import { Label, LabelSize } from '@noodl-core-ui/components/typography/Label';
 import { Text, TextType } from '@noodl-core-ui/components/typography/Text';
 
@@ -169,8 +170,6 @@ function AiNodeChat({ context, onUpdated }: AiNodeChatProps) {
     setMessage('');
   }
 
-  // You should not be able to reactivly update this while having this panel open
-  // So it will always re-render when opening the panel, and we get the latest version.
   const version = OpenAiStore.getVersion();
   const prettyVersion = OpenAiStore.getPrettyVersion();
 
@@ -208,22 +207,24 @@ function AiNodeChat({ context, onUpdated }: AiNodeChatProps) {
         )
       }
     >
-      <Box hasXSpacing hasYSpacing>
-        <VStack>
-          <Center>
-            <Label variant={TextType.Shy} hasBottomSpacing={!!prettyVersion}>
-              {context.template.name}
-            </Label>
-          </Center>
-          {prettyVersion && (
+      {context.chatHistory.messages.length === 0 && (
+        <Box hasXSpacing hasYSpacing>
+          <VStack>
             <Center>
-              <Label variant={TextType.Shy} size={LabelSize.Small}>
-                ({prettyVersion})
+              <Label variant={TextType.Shy} hasBottomSpacing={!!prettyVersion}>
+                {context.template.name}
               </Label>
             </Center>
-          )}
-        </VStack>
-      </Box>
+            {prettyVersion && (
+              <Center>
+                <Label variant={TextType.Shy} size={LabelSize.Small}>
+                  ({prettyVersion})
+                </Label>
+              </Center>
+            )}
+          </VStack>
+        </Box>
+      )}
 
       {context.chatHistory.messages.map((message, index) => (
         <AiMessage key={message.snowflakeId} context={context} message={message} index={index} onUpdated={onUpdated} />
