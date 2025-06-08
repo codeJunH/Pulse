@@ -1,105 +1,132 @@
 # Pulse
 
-Pulse is a fork of OpenNoodl, building upon the original Noodl open source code under GPL-3.0 license. Pulse is an advanced front-end React app builder with a visual programming interface that pursues a better no-code/low-code editor experience.
+**Pulse** is an advanced visual programming platform for building modern web applications. Forked from [OpenNoodl](https://github.com/The-Low-Code-Foundation/OpenNoodl), Pulse extends the capabilities of the original Noodl open source code with enhanced AI features and improved developer experience.
 
-Pulse extensively supports AI features that Noodl missed, providing developers and designers with powerful AI-assisted development capabilities for faster and more intelligent application creation.
+> 🌟 **Built on OpenNoodl Foundation**: Pulse is a fork of OpenNoodl, which itself is based on the original Noodl open source code under GPL-3.0 license.
 
-## Key Features
+## ✨ What Makes Pulse Special
 
-- **Enhanced Visual Programming**: Advanced no-code/low-code editor with improved user experience
-- **Extensive AI Integration**: Comprehensive AI features for intelligent code generation, component suggestions, and automated development workflows
-- **AI-Powered Development**: Smart assistance for faster application building with minimal coding knowledge required
-- **Advanced React Builder**: Sophisticated front-end development tools for modern web applications
+Pulse transforms visual programming by combining the power of React with an intuitive no-code/low-code interface, enhanced by cutting-edge AI capabilities that OpenNoodl lacks.
 
-# OpenNoodl
+### 🚀 Key Features
 
-OpenNoodl is a fork of the original Noodl open source code under GPL-3.0 license. OpenNoodl / Noodl is a front end React app builder with a visual programming interface. 
+- **🎨 Enhanced Visual Programming**: Advanced drag-and-drop interface for building React applications
+- **🤖 AI-Powered Development**: Comprehensive AI integration for intelligent code generation and component suggestions
+- **⚡ Smart Assistance**: AI-driven development workflows that accelerate application building
+- **🔧 Advanced Tooling**: Sophisticated debugging, testing, and deployment tools
+- **📱 Modern React Builder**: Create responsive, performant web applications with ease
+- **🔄 Real-time Collaboration**: Enhanced team collaboration features
+- **📖 AI Documentation Support**: Intelligent context-aware help and documentation
 
-OpenNoodl will aim to stay entirely in sync with the original repository, including future updates to this repository. A roadmap for updates will be published soon.
+## 🎯 Who Is Pulse For?
 
-# Installing OpenNoodl
+- **Designers** who want to bring their ideas to life without deep coding knowledge
+- **Developers** looking to accelerate their React development workflow
+- **Teams** that need rapid prototyping and iteration capabilities
+- **Entrepreneurs** building MVPs and proof-of-concepts quickly
+- **Anyone** interested in modern visual programming with AI assistance
 
-## One-click install
+## 🚀 Getting Started
 
-* [OpenNoodl 1.1.0 for MacOS Intel](https://github.com/The-Low-Code-Foundation/OpenNoodl/releases/download/release/OpenNoodl.1.1.0.Apple.Intel.dmg)
-* [OpenNoodl 1.1.0 for MacOS Silicon](https://github.com/The-Low-Code-Foundation/OpenNoodl/releases/download/release/OpenNoodl.1.1.0.Apple.Silicon.dmg)
-* [OpenNoodl 1.1.0 for Windows](https://github.com/The-Low-Code-Foundation/OpenNoodl/releases/download/release/OpenNoodl.1.1.0.Windows.exe)
+### Prerequisites
 
-## Arch Linux
+- Node.js 16+ 
+- npm or yarn package manager
+- Git
 
-On Arch Linux, OpenNoodl can be installed [from the AUR](https://aur.archlinux.org/packages/opennoodl):
-```
-yay -S opennoodl
-```
-
-# Getting started
-
-## Beginner resources
-
-* [Tutorials and basic info](https://learn-noodl.com)
-* [Resources and community components](https://the-low-code-foundation.fibery.io/invite/5NtlTThnCPh2vaAk)
-
-## Integrated back-end
-
-### Cloud hosted
-
-OpenNoodl has native CRUD nodes that work with Parse Server backends. [OpenNoodl Hosting](https://opennoodl-hosting.com) provides free and paid Parse Server backends to help you get started.
-
-### Self hosted
-
-If you prefer self-hosting or a local backend, while still taking advantage of the native OpenNoodl CRUD nodes, check out the repositories of the original [Noodl Cloud Services backend](https://github.com/The-Low-Code-Foundation/opennoodl-cloudservice) (Parse and cloud functions), as well as the new [OpenNoodl Better Backend](https://github.com/The-Low-Code-Foundation/opennoodl-better-backend) (Parse and n8n).
-
-## Building from source
-
-See the original Noodl documentation below
-
-# Noodl
-
-[Noodl](https://noodl.net) is a low-code platform where designers and developers build custom applications and experiences. Designed as a visual programming environment, it aims to expedite your development process. It promotes the swift and efficient creation of applications, requiring minimal coding knowledge.
-
-## Documentation
-Documentation for how to use Noodl can be found here:
-[https://noodlapp.github.io/noodl-docs/](https://noodlapp.github.io/noodl-docs/)
-
-## Community
-Main support channel is Discord: [https://www.noodl.net/community](https://www.noodl.net/community)
-
-## Download releases
-Pre-built binaries can be [downloaded from Github](https://github.com/noodlapp/noodl/releases)
-
-## Note for users who are migrating from the deprecated closed source version
-- [Migrating the project files and workspaces to a Git provider](https://noodlapp.github.io/noodl-docs/docs/guides/collaboration/migrating-from-noodl-hosted-git)
-- [Migrate backend and database](https://noodlapp.github.io/noodl-docs/docs/guides/deploy/using-an-external-backend#migrating-from-a-noodl-cloud-service)
-- [Self-host frontend](https://noodlapp.github.io/noodl-docs/docs/guides/deploy/hosting-frontend)
-
-## Building from source
+### Development Setup
 
 ```bash
+# Clone the repository
+git clone https://github.com/your-username/Pulse.git
+cd Pulse
+
 # Install all dependencies
-$ npm install
+npm install
 
-# Start the Noodl Editor and build a production version of the cloud and react runtime (useful when running Noodl from source but want to deploy to production)
-$ npm start
+# Start Pulse Editor for development (with hot reload)
+npm run dev
 
-# Start the Noodl Editor and watch the filesystem for changes to the runtimes. Development versions of the runtimes, not meant for production (mostly due to source maps and file size)
-# This is ideal for a quick workflow when doing changes on the runtimes.
-$ npm run dev
+# Build production version
+npm start
 
-# Start Noodl Editor test runner
-$ npm run test:editor
+# Run tests
+npm run test:editor
 ```
 
-## Licenses
-This repository contains two different licenses for different parts of the Noodl platform.
+## 🏗️ Building Applications
 
-- Components related to the editor, used to edit Noodl projects, are under GPLv3
-- Components related to the end applications, used by the applications Noodl deploys, are under MIT
+Pulse makes it easy to create sophisticated web applications:
 
-All of the source code of applications created with Noodl are under MIT. This means you can do project specific changes to the runtime without having to redistribute your changes.
+1. **🎨 Design Visually**: Use the visual editor to create your UI
+2. **🤖 Get AI Help**: Let AI suggest components and generate code
+3. **⚡ Add Logic**: Connect your components with visual programming
+4. **🔧 Customize**: Write custom JavaScript when needed
+5. **🚀 Deploy**: Export your React application ready for production
 
-Packaged licensed under MIT:
+## 🤖 AI Features
+
+Pulse's AI capabilities set it apart from traditional visual programming tools:
+
+- **Smart Component Suggestions**: AI recommends the best components for your use case
+- **Code Generation**: Generate custom JavaScript functions and React components
+- **Documentation Assistant**: Get contextual help and explanations
+- **Pattern Recognition**: AI learns from your patterns to suggest improvements
+- **Debugging Support**: Intelligent error detection and solution suggestions
+
+## 📚 Learning Resources
+
+- **Documentation**: Based on [OpenNoodl Documentation](https://noodlapp.github.io/noodl-docs/)
+- **Tutorials**: Step-by-step guides for beginners
+- **Examples**: Sample projects and templates
+- **Community**: Join discussions and get support
+
+## 🤝 Contributing
+
+We welcome contributions to Pulse! Whether you're fixing bugs, adding features, or improving documentation, your help is appreciated.
+
+### Development Guidelines
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This repository contains code under two different licenses:
+
+### GPL-3.0 Licensed Components
+- Editor components used for creating Noodl projects
+- Development tools and IDE functionality
+
+### MIT Licensed Components  
+- Runtime components used by deployed applications
+- End-user application code
+
+**Packages under MIT License:**
 - `noodl-runtime`
-- `noodl-viewer-cloud`
+- `noodl-viewer-cloud` 
 - `noodl-viewer-react`
-  
-You can find a MIT LICENSE file in each of these packages. The rest of the repository is licensed under GPLv3.
+
+All applications created with Pulse are under MIT license, allowing you to make project-specific changes without redistribution requirements.
+
+## 🙏 Acknowledgments
+
+- **OpenNoodl Team**: For providing the foundation that Pulse builds upon
+- **Original Noodl**: For pioneering visual programming in the web development space
+- **React Community**: For the amazing ecosystem that powers Pulse applications
+- **AI Research Community**: For the advances that make our AI features possible
+
+## 🔗 Links
+
+- **OpenNoodl**: [Original OpenNoodl Project](https://github.com/The-Low-Code-Foundation/OpenNoodl)
+- **Noodl Documentation**: [https://noodlapp.github.io/noodl-docs/](https://noodlapp.github.io/noodl-docs/)
+- **Community**: [Discord Support](https://www.noodl.net/community)
+
+---
+
+⭐ **Star this repository** if you find Pulse useful!
+
+💬 **Questions?** Join our community or open an issue - we're here to help!
