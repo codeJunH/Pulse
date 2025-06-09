@@ -13,6 +13,6 @@ module.exports = merge(shared, {
     production: true
   }),
   output: {
-    path: path.join(__dirname, '.././')
+    path: path.join(__dirname, '../dist/renderer/')
   }
 });

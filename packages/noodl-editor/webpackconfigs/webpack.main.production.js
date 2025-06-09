@@ -10,10 +10,10 @@ module.exports = merge(shared, {
     production: true
   }),
   entry: {
-    './src/main/main': './src/main/main.js'
+    'main': './src/main/main.js'
   },
   output: {
-    path: path.join(__dirname, '.././'),
+    path: path.join(__dirname, '../dist/main/'),
     filename: '[name].bundle.js',
     // https://github.com/webpack/webpack/issues/1114
     libraryTarget: 'commonjs2'

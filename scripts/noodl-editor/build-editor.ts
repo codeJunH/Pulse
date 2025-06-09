@@ -44,7 +44,7 @@ import { getCurrentPlatform } from '../helper';
     // const gitBranch = rawGitBranch.toString().trim().replace(/\//, '-');
 
     const pkg = await filesystem.readJson(pkgPath);
-    pkg.main = 'src/main/main.bundle.js';
+    pkg.main = 'dist/main/main.bundle.js';
     // TODO: Set our own new versionTag
     pkg.versionTag = undefined;
     // pkg.build.publish.url = getPublishUrl() + `/${TARGET_PLATFORM}`;

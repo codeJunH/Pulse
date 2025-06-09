@@ -52,6 +52,9 @@ npm start
 
 # Run tests
 npm run test:editor
+
+# Build editor without git
+npm run build:editor -- --skip-git
 ```
 
 ## 🏗️ Building Applications

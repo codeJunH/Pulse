@@ -7,8 +7,8 @@ module.exports = merge(
   sharedCore,
   merge(shared, {
     entry: {
-      './src/editor/index': './src/editor/index.ts',
-      './src/frames/viewer-frame/index': './src/frames/viewer-frame/index.js',
+      'editor': './src/editor/index.ts',
+      'viewer-frame': './src/frames/viewer-frame/index.js',
     },
     output: {
       filename: '[name].bundle.js',

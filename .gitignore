@@ -168,3 +168,14 @@ packages/noodl-editor/tests/vendors-node_modules_monaco-editor_esm_vs_language_t
 packages/noodl-editor/src/external
 .github/.secrets
 packages/noodl-viewer-cloud/publish
+
+# Prevent build files in wrong locations
+packages/noodl-editor/*.bundle.js
+packages/noodl-editor/*.bundle.js.map
+packages/noodl-editor/*.worker.js
+packages/noodl-editor/*.worker.js.map
+packages/noodl-editor/[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f].svg
+packages/noodl-editor/src/**/*.bundle.js
+packages/noodl-editor/src/**/*.bundle.js.map
+packages/noodl-editor/src/**/*.worker.js
+packages/noodl-editor/src/**/*.worker.js.map

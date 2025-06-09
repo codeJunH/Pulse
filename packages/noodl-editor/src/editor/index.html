@@ -17,8 +17,8 @@
     <link rel="preload" href="../assets/Inter/Inter-SemiBold.ttf" as="font" />
 
     <script>
-      const path = process.env.devMode !== 'yes' ? '.' : 'http://localhost:8080/src/editor';
-      document.write(`<script defer src="${path}/index.bundle.js"><\/script>`);
+              const path = process.env.devMode !== 'yes' ? '../../dist/renderer' : 'http://localhost:8080';
+      document.write(`<script defer src="${path}/editor.bundle.js"><\/script>`);
     </script>
   </head>
 
